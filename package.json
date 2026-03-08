@@ -1,0 +1,30 @@
+{
+  "name": "hnl-power-bars-card",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A power bar visualization card for Home Assistant",
+  "keywords": [
+    "home-assistant",
+    "homeassistant",
+    "hass",
+    "lovelace",
+    "custom-cards"
+  ],
+  "module": "hnl-power-bars-card.js",
+  "license": "MIT",
+  "dependencies": {
+    "lit": "^3.3.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.0",
+    "@rollup/plugin-node-resolve": "^15.2.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-json": "^6.1.0",
+    "rollup": "^4.20.0",
+    "rollup-plugin-serve": "^1.1.1"
+  },
+  "scripts": {
+    "start": "rollup -c --watch",
+    "build": "rm -rf dist && rollup -c"
+  }
+}
