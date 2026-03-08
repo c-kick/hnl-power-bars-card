@@ -65,7 +65,22 @@ class HnlPowerBarsCard extends LitElement {
           return items.map((item, index) => {
             const entityId = item.entity;
             const stateObj = this.hass?.states[entityId];
-            let value = stateObj ? parseFloat(stateObj.state) || 0 : 0;
+            const fallbackVar = `var(--hnl-power-bars-color-${colorType}-${index % 8}, var(--hnl-power-bars-color-default))`;
+
+            if (!stateObj) {
+              return {
+                entity_id: entityId,
+                name: entityId,
+                value: 0,
+                icon: item.icon || fallbackIcon,
+                color: item.color || fallbackVar,
+                bg_opacity: item.bg_opacity || 'inherit',
+                text_color: item.text_color || 'inherit',
+                unit_of_measurement: item.unit_of_measurement,
+              };
+            }
+
+            let value = parseFloat(stateObj.state) || 0;
 
             if (this._rawConfig.easing) {
               const prev = this._previousValues[entityId] ?? value;
@@ -73,8 +88,7 @@ class HnlPowerBarsCard extends LitElement {
               this._previousValues[entityId] = value;
             }
 
-            const unit = item.unit_of_measurement ?? stateObj?.attributes.unit_of_measurement;
-            const fallbackVar = `var(--hnl-power-bars-color-${colorType}-${index % 8}, var(--hnl-power-bars-color-default))`;
+            const unit = item.unit_of_measurement ?? stateObj.attributes.unit_of_measurement;
 
             return {
               entity_id: entityId,
@@ -115,7 +129,7 @@ class HnlPowerBarsCard extends LitElement {
         const bars = entities.map((ent) => {
             const value = ent.value;
             const unit = unitOverride || ent.unit_of_measurement;
-            const width = Math.round((value / maxValue) * 100);
+            const width = maxValue > 0 ? Math.round((value / maxValue) * 100) : 0;
             total += this._roundOff(value);
 
             return {
@@ -152,6 +166,9 @@ class HnlPowerBarsCard extends LitElement {
 
     //part of LitElement interface
     render() {
+        if (!this.hass || !this._parsedConfig) {
+            return html``;
+        }
 
         const productionTotal = this._parsedConfig.production.reduce((sum, ent) => sum + ent.value, 0);
         const consumptionTotal = this._parsedConfig.consumption.reduce((sum, ent) => sum + ent.value, 0);
