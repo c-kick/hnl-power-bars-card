@@ -526,7 +526,7 @@ class HnlFlowBarsCard extends LitElement {
                 justify-content: center;
                 padding: max(.15cqi,2px);
                 background-color: var(--adjusted-bg-color);
-                color: white;
+                color: var(--text-color, white);
                 overflow: hidden;
                 min-width: var(--min-bar-width);
                 --adjusted-bg-color: oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity));

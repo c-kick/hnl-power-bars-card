@@ -1,5 +1,16 @@
 import { LitElement, html, css } from 'lit';
 
+// Force HA to load ha-entity-picker by creating a temporary entities card
+const loadEntityPicker = async () => {
+  if (customElements.get('ha-entity-picker')) return;
+  const ch = await window.loadCardHelpers?.();
+  if (ch) {
+    const card = await ch.createCardElement({ type: 'entities', entities: [] });
+    card && await card.constructor.getConfigElement?.();
+  }
+};
+loadEntityPicker();
+
 class EntityListEditor extends LitElement {
 
   static get properties() {
@@ -93,7 +104,7 @@ class EntityListEditor extends LitElement {
             .hass=${this.hass}
             .value=${entity.entity || ''}
             .label=${'Entity'}
-            allow-custom-entity
+            .allowCustomEntity=${true}
             @value-changed=${(ev) =>
               this._entityFieldChanged(index, 'entity', ev.detail.value)}
           ></ha-entity-picker>
