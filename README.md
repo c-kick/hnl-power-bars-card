@@ -2,9 +2,51 @@
 
 A custom Home Assistant Lovelace card that visualizes supply vs demand flows as proportional stacked bars with accolade connectors.
 
-<img width="927" height="87" alt="image" src="https://github.com/user-attachments/assets/1f5d5d67-b1b0-411b-ab72-46cc1fa778a6" />
+<img width="517" height="66" alt="image" src="https://github.com/user-attachments/assets/c1421f81-6b61-482d-9745-588a23a45472" />
 
 Production sources (e.g. solar, battery) are shown on top with slanted labels and bracket connectors. Consumption destinations (e.g. house, EV charger) are shown below. Bar widths scale proportionally, with optional remainder bars showing grid import/export.
+
+The main purpose of this card is to show source(s), destination(s), surplus and shortfall - all in one.
+
+So if you need to see:
+- How much [x] is generated?
+- How much of it is consumed?
+- Does anything remain? Or do we fall short?
+
+> x = solar, water, gas, apples, oranges - whatever you want.
+
+Then is the card for you.
+
+## Examples
+### Example 1 - Current energy flow
+- Show how much solar power is generated
+- How much of it is consumed
+- If something remains: how much flows back to the grid?
+- If we fall short: how much is drawn from the grid?
+
+<img width="427" height="80" alt="image" src="https://github.com/user-attachments/assets/fec15f27-d84c-4d79-a6b2-3f99b3c31113" />
+
+<img width="432" height="79" alt="image" src="https://github.com/user-attachments/assets/e50429d7-7646-4dc0-b83d-672f120e9d7c" />
+
+
+### Example 2 - Total energy flow
+- Show how much solar power was generated today
+- How much of it was consumed
+- How much was returned to the grid
+- How much was drawn additionally from the grid
+
+<img width="430" height="83" alt="image" src="https://github.com/user-attachments/assets/8cf637e8-d219-4867-a424-0eb84d677b6c" />
+
+### Example 3 - Gas usage today (sources and destination flipped)
+- How much gas was spent on central heating
+- How much gas was spent on warm water
+- Show how much gas was consumed in total
+
+<img width="443" height="82" alt="image" src="https://github.com/user-attachments/assets/180823a1-7141-470e-a984-9ba6db907d3e" />
+
+Or, smaller, with less decimals and slightly different colors + dotted theme
+
+<img width="209" height="56" alt="image" src="https://github.com/user-attachments/assets/4c137778-5e72-4090-b4ee-210890fb9a5b" />
 
 ## Installation
 
@@ -140,4 +182,5 @@ npm run build  # production build
 ## License
 
 MIT
+
 
