@@ -24,9 +24,9 @@ Then is the card for you.
 - If something remains: how much flows back to the grid?
 - If we fall short: how much is drawn from the grid?
 
-<img width="427" height="80" alt="image" src="https://github.com/user-attachments/assets/fec15f27-d84c-4d79-a6b2-3f99b3c31113" />
+<img width="430" height="80" alt="image" src="https://github.com/user-attachments/assets/fec15f27-d84c-4d79-a6b2-3f99b3c31113" />
 
-<img width="432" height="79" alt="image" src="https://github.com/user-attachments/assets/e50429d7-7646-4dc0-b83d-672f120e9d7c" />
+<img width="430" height="79" alt="image" src="https://github.com/user-attachments/assets/e50429d7-7646-4dc0-b83d-672f120e9d7c" />
 
 
 ### Example 2 - Total energy flow
@@ -42,11 +42,18 @@ Then is the card for you.
 - How much gas was spent on warm water
 - Show how much gas was consumed in total
 
-<img width="443" height="82" alt="image" src="https://github.com/user-attachments/assets/180823a1-7141-470e-a984-9ba6db907d3e" />
+<img width="430" height="82" alt="image" src="https://github.com/user-attachments/assets/180823a1-7141-470e-a984-9ba6db907d3e" />
 
 Or, smaller, with less decimals and slightly different colors + dotted theme
 
 <img width="209" height="56" alt="image" src="https://github.com/user-attachments/assets/4c137778-5e72-4090-b4ee-210890fb9a5b" />
+
+## Don't we already have the Distribution Card for this?
+
+We do, but I think that card falls short when you need insight in one glance. See the difference for yourself:
+
+<img width="443" height="233" alt="image" src="https://github.com/user-attachments/assets/672b872a-85b0-4c7a-a35c-a8fc2035b66b" />
+
 
 ## Installation
 
@@ -182,5 +189,6 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
