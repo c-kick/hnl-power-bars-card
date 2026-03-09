@@ -26,8 +26,11 @@ Then is the card for you.
 
 <img width="430" height="80" alt="image" src="https://github.com/user-attachments/assets/fec15f27-d84c-4d79-a6b2-3f99b3c31113" />
 
-<img width="430" height="79" alt="image" src="https://github.com/user-attachments/assets/e50429d7-7646-4dc0-b83d-672f120e9d7c" />
+<sub>1a: 9W surplus</sub>
 
+<img width="430" height="80" alt="image" src="https://github.com/user-attachments/assets/874153b7-f3b0-49e4-9c1c-8fd1b7f13709" />
+
+<sub>1b: 260W Shortfall</sub>
 
 ### Example 2 - Total energy flow
 - Show how much solar power was generated today
@@ -44,7 +47,7 @@ Then is the card for you.
 
 <img width="430" height="82" alt="image" src="https://github.com/user-attachments/assets/180823a1-7141-470e-a984-9ba6db907d3e" />
 
-Or, smaller, with less decimals and slightly different colors + dotted theme
+Or, smaller, with less decimals and slightly different colors + dotted theme:
 
 <img width="209" height="56" alt="image" src="https://github.com/user-attachments/assets/4c137778-5e72-4090-b4ee-210890fb9a5b" />
 
@@ -53,7 +56,6 @@ Or, smaller, with less decimals and slightly different colors + dotted theme
 We do, but I think that card falls short when you need insight in one glance. See the difference for yourself:
 
 <img width="443" height="233" alt="image" src="https://github.com/user-attachments/assets/672b872a-85b0-4c7a-a35c-a8fc2035b66b" />
-
 
 ## Installation
 
@@ -189,6 +191,7 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
 
