@@ -3,7 +3,7 @@ import { COLOR_SOURCE, COLOR_SHORTFALL, COLOR_DESTINATION, COLOR_SURPLUS } from 
 import './entity-list-editor.js';
 import './remainder-editor.js';
 
-class HnlPowerBarsCardEditor extends LitElement {
+class HnlFlowBarsCardEditor extends LitElement {
 
   static get properties() {
     return {
@@ -430,4 +430,4 @@ class HnlPowerBarsCardEditor extends LitElement {
   }
 }
 
-customElements.define('hnl-power-bars-card-editor', HnlPowerBarsCardEditor);
+customElements.define('hnl-flow-bars-card-editor', HnlFlowBarsCardEditor);

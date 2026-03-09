@@ -1,6 +1,6 @@
 export const CARD_VERSION = '1.1.0';
-export const CARD_NAME = 'hnl-power-bars-card';
-export const CARD_DESCRIPTION = 'A power bar visualization card for Home Assistant';
+export const CARD_NAME = 'hnl-flow-bars-card';
+export const CARD_DESCRIPTION = 'A flow bar visualization card for Home Assistant';
 
 // Default colors — aligned with HA Energy Dashboard conventions
 export const COLOR_SOURCE = '#ff9800';           // --energy-solar-color (orange)

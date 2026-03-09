@@ -5,7 +5,7 @@ import {
     COLOR_SOURCE, COLOR_SHORTFALL, COLOR_DESTINATION, COLOR_SURPLUS,
     TEXT_COLOR_SHORTFALL, TEXT_COLOR_SURPLUS,
 } from './const.js';
-import './editor/hnl-power-bars-card-editor.js';
+import './editor/hnl-flow-bars-card-editor.js';
 
 console.info(
     `%c ${CARD_NAME.toUpperCase()} %c v${CARD_VERSION} `,
@@ -16,11 +16,11 @@ console.info(
 window.customCards = window.customCards || [];
 window.customCards.push({
     type: CARD_NAME,
-    name: 'HNL Power Bars Card',
+    name: 'HNL Flow Bars Card',
     description: CARD_DESCRIPTION,
 });
 
-class HnlPowerBarsCard extends LitElement {
+class HnlFlowBarsCard extends LitElement {
 
     _updatedParsedConfig = null;
     _previousValues = {};
@@ -70,7 +70,7 @@ class HnlPowerBarsCard extends LitElement {
           return items.map((item, index) => {
             const entityId = item.entity;
             const stateObj = this.hass?.states[entityId];
-            const fallbackVar = `var(--hnl-power-bars-color-${colorType}-${index % 8}, var(--hnl-power-bars-color-default))`;
+            const fallbackVar = `var(--hnl-flow-bars-color-${colorType}-${index % 8}, var(--hnl-flow-bars-color-default))`;
 
             if (!stateObj) {
               return {
@@ -162,21 +162,21 @@ class HnlPowerBarsCard extends LitElement {
     }
 
     _renderSourceLabel(ent) {
-        return html`<hnl-power-bar-source-label class="${ent.hatched ? 'hatched' : ''}" title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
+        return html`<hnl-flow-bar-source-label class="${ent.hatched ? 'hatched' : ''}" title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
             <ha-icon icon="${ent.icon || computeEntityIcon(ent)}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
-          </span></hnl-power-bar-source-label>`;
+          </span></hnl-flow-bar-source-label>`;
     }
 
     _renderAccolade(ent) {
-        return html`<hnl-power-bar-source-accolade class="${ent.hatched ? 'hatched' : ''}" style="--background-color:${ent.color};--width:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};"></hnl-power-bar-source-accolade>`;
+        return html`<hnl-flow-bar-source-accolade class="${ent.hatched ? 'hatched' : ''}" style="--background-color:${ent.color};--width:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};"></hnl-flow-bar-source-accolade>`;
     }
 
     _renderDestination(ent) {
-        return html`<hnl-power-bar-destination class="${ent.hatched ? 'hatched' : ''}" title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
+        return html`<hnl-flow-bar-destination class="${ent.hatched ? 'hatched' : ''}" title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
             <ha-icon icon="${ent.icon}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
-          </span><span class="entity-name">${ent.name}</span></hnl-power-bar-destination>`;
+          </span><span class="entity-name">${ent.name}</span></hnl-flow-bar-destination>`;
     }
 
     _renderRemainder(type, remainderValue) {
@@ -184,21 +184,21 @@ class HnlPowerBarsCard extends LitElement {
         const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || '';
         const hatchedClass = cfg.hatched ? 'hatched' : '';
         if (type === 'production') {
-            return html`<hnl-power-bar-source-label class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};"><span>
+            return html`<hnl-flow-bar-source-label class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};"><span>
                 <ha-icon icon="${cfg.icon}"></ha-icon>
                 <span>${remainderValue} ${cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span>
-                </span></hnl-power-bar-source-label>`;
+                </span></hnl-flow-bar-source-label>`;
         }
-        return html`<hnl-power-bar-destination class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--destination-bg-opacity:${cfg.bg_opacity};"><span>
+        return html`<hnl-flow-bar-destination class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--destination-bg-opacity:${cfg.bg_opacity};"><span>
             <ha-icon icon="${cfg.icon}"></ha-icon>
             <span>${remainderValue} ${cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span>
-            </span><span class="entity-name">${cfg.name}</span></hnl-power-bar-destination>`;
+            </span><span class="entity-name">${cfg.name}</span></hnl-flow-bar-destination>`;
     }
 
     _renderRemainderAccolade(type) {
         const cfg = this._parsedConfig[`${type}_remainder`];
         const hatchedClass = cfg.hatched ? 'hatched' : '';
-        return html`<hnl-power-bar-source-accolade class="${hatchedClass}" style="--background-color:${cfg.color};--accolade-bg-opacity:${cfg.bg_opacity};"></hnl-power-bar-source-accolade>`;
+        return html`<hnl-flow-bar-source-accolade class="${hatchedClass}" style="--background-color:${cfg.color};--accolade-bg-opacity:${cfg.bg_opacity};"></hnl-flow-bar-source-accolade>`;
     }
 
     _normalizeEntityConfig(input) {
@@ -265,22 +265,22 @@ class HnlPowerBarsCard extends LitElement {
         return html`
             <ha-card class="${this._parsedConfig.card_class}">
                 <div class="card-content">
-        <hnl-power-bars>
-            <hnl-power-bar-source-group>
-                <hnl-power-bar-source-labels>
+        <hnl-flow-bars>
+            <hnl-flow-bar-source-group>
+                <hnl-flow-bar-source-labels>
                     ${visibleProd.map((ent) => this._renderSourceLabel(ent))}
                     ${totals.production_remainder > 0 ? this._renderRemainder('production', totals.production_remainder) : null}
-                </hnl-power-bar-source-labels>
-                <hnl-power-bar-source-accolades>
+                </hnl-flow-bar-source-labels>
+                <hnl-flow-bar-source-accolades>
                     ${visibleProd.map((ent) => this._renderAccolade(ent))}
                     ${totals.production_remainder > 0 ? this._renderRemainderAccolade('production') : null}
-                </hnl-power-bar-source-accolades>
-            </hnl-power-bar-source-group>
-            <hnl-power-bar-destination-group>
+                </hnl-flow-bar-source-accolades>
+            </hnl-flow-bar-source-group>
+            <hnl-flow-bar-destination-group>
                 ${visibleCons.map((ent) => this._renderDestination(ent))}
                 ${totals.consumption_remainder > 0 ? this._renderRemainder('consumption', totals.consumption_remainder) : null}
-            </hnl-power-bar-destination-group>
-        </hnl-power-bars>
+            </hnl-flow-bar-destination-group>
+        </hnl-flow-bars>
                 </div>
             </ha-card>
         `;
@@ -352,7 +352,7 @@ class HnlPowerBarsCard extends LitElement {
 
     //part of HASS card API
     static getConfigElement() {
-        return document.createElement("hnl-power-bars-card-editor");
+        return document.createElement("hnl-flow-bars-card-editor");
     }
 
     //part of HASS card API
@@ -392,36 +392,36 @@ class HnlPowerBarsCard extends LitElement {
                 --label-edge-padding: calc(var(--font-size, 0.8em) * .7);
                 --label-padding: calc(var(--font-size, 0.8em) * 0.15) calc(var(--font-size, 0.8em) * 0.5);
 
-                --hnl-power-bars-color-default: hsl(205, 90%, 55%);
+                --hnl-flow-bars-color-default: hsl(205, 90%, 55%);
 
                 /* Base colors — keep in sync with const.js COLOR_* constants */
-                --hnl-power-bars-color-production: #ff9800;
-                --hnl-power-bars-color-production-0: oklch(from var(--hnl-power-bars-color-production) l c h / 1);
-                --hnl-power-bars-color-production-1: oklch(from var(--hnl-power-bars-color-production) calc(l * .9) c calc(h - 10) / 1);
-                --hnl-power-bars-color-production-2: oklch(from var(--hnl-power-bars-color-production) calc(l * 1.1) c calc(h + 10) / 1);
-                --hnl-power-bars-color-production-3: oklch(from var(--hnl-power-bars-color-production) calc(l * .9) c calc(h - 30) / 1);
-                --hnl-power-bars-color-production-4: oklch(from var(--hnl-power-bars-color-production) calc(l * 1.1) c calc(h + 30) / 1);
+                --hnl-flow-bars-color-production: #ff9800;
+                --hnl-flow-bars-color-production-0: oklch(from var(--hnl-flow-bars-color-production) l c h / 1);
+                --hnl-flow-bars-color-production-1: oklch(from var(--hnl-flow-bars-color-production) calc(l * .9) c calc(h - 10) / 1);
+                --hnl-flow-bars-color-production-2: oklch(from var(--hnl-flow-bars-color-production) calc(l * 1.1) c calc(h + 10) / 1);
+                --hnl-flow-bars-color-production-3: oklch(from var(--hnl-flow-bars-color-production) calc(l * .9) c calc(h - 30) / 1);
+                --hnl-flow-bars-color-production-4: oklch(from var(--hnl-flow-bars-color-production) calc(l * 1.1) c calc(h + 30) / 1);
 
-                --hnl-power-bars-color-production-remainder: #488fc2;
-                --hnl-power-bars-text-color-production-remainder: #fff;
+                --hnl-flow-bars-color-production-remainder: #488fc2;
+                --hnl-flow-bars-text-color-production-remainder: #fff;
 
-                --hnl-power-bars-color-consumption: #488fc2;
-                --hnl-power-bars-color-consumption-0: oklch(from var(--hnl-power-bars-color-consumption) l c h / 1);
-                --hnl-power-bars-color-consumption-1: oklch(from var(--hnl-power-bars-color-consumption) calc(l * .9) c calc(h - 10) / 1);
-                --hnl-power-bars-color-consumption-2: oklch(from var(--hnl-power-bars-color-consumption) calc(l * 1.1) c calc(h + 10) / 1);
-                --hnl-power-bars-color-consumption-3: oklch(from var(--hnl-power-bars-color-consumption) calc(l * .9) c calc(h - 30) / 1);
-                --hnl-power-bars-color-consumption-4: oklch(from var(--hnl-power-bars-color-consumption) calc(l * 1.1) c calc(h + 30) / 1);
+                --hnl-flow-bars-color-consumption: #488fc2;
+                --hnl-flow-bars-color-consumption-0: oklch(from var(--hnl-flow-bars-color-consumption) l c h / 1);
+                --hnl-flow-bars-color-consumption-1: oklch(from var(--hnl-flow-bars-color-consumption) calc(l * .9) c calc(h - 10) / 1);
+                --hnl-flow-bars-color-consumption-2: oklch(from var(--hnl-flow-bars-color-consumption) calc(l * 1.1) c calc(h + 10) / 1);
+                --hnl-flow-bars-color-consumption-3: oklch(from var(--hnl-flow-bars-color-consumption) calc(l * .9) c calc(h - 30) / 1);
+                --hnl-flow-bars-color-consumption-4: oklch(from var(--hnl-flow-bars-color-consumption) calc(l * 1.1) c calc(h + 30) / 1);
 
-                --hnl-power-bars-color-consumption-remainder: #8353d1;
-                --hnl-power-bars-text-color-consumption-remainder: #fff;
+                --hnl-flow-bars-color-consumption-remainder: #8353d1;
+                --hnl-flow-bars-text-color-consumption-remainder: #fff;
 
                 font-size: var(--font-size, 0.8em);
                 font-weight: 500;
             }
 
-            hnl-power-bars *,
-            hnl-power-bars *::before,
-            hnl-power-bars *::after {
+            hnl-flow-bars *,
+            hnl-flow-bars *::before,
+            hnl-flow-bars *::after {
                 box-sizing: border-box;
             }
 
@@ -454,7 +454,7 @@ class HnlPowerBarsCard extends LitElement {
 
 
             /* Layout */
-            hnl-power-bars {
+            hnl-flow-bars {
                 display: grid;
                 align-self: center;
                 flex-basis: 100%;
@@ -466,7 +466,7 @@ class HnlPowerBarsCard extends LitElement {
                 max-height: 100%;
             }
 
-            hnl-power-bar-source-group {
+            hnl-flow-bar-source-group {
                 display: grid;
                 grid-column: 1;
                 grid-row: 1 / -1;
@@ -475,7 +475,7 @@ class HnlPowerBarsCard extends LitElement {
                 overflow: hidden;
             }
 
-            hnl-power-bar-destination-group {
+            hnl-flow-bar-destination-group {
                 display: flex;
                 grid-column: 1;
                 grid-row: 3;
@@ -484,38 +484,38 @@ class HnlPowerBarsCard extends LitElement {
                 gap: 0;
             }
 
-            hnl-power-bar-source-labels,
-            hnl-power-bar-source-accolades {
+            hnl-flow-bar-source-labels,
+            hnl-flow-bar-source-accolades {
                 display: flex;
                 z-index: 2;
                 gap: 0;
             }
 
-            hnl-power-bar-source-labels {
+            hnl-flow-bar-source-labels {
                 grid-row: 1;
             }
 
-            hnl-power-bar-source-accolades {
+            hnl-flow-bar-source-accolades {
                 grid-row: 2 / -1;
                 z-index: 3;
             }
 
-            hnl-power-bar-source-label,
-            hnl-power-bar-source-accolade,
-            hnl-power-bar-destination {
+            hnl-flow-bar-source-label,
+            hnl-flow-bar-source-accolade,
+            hnl-flow-bar-destination {
                 display: flex;
                 flex: var(--grow, 0) 1 var(--width, 0);
                 transition: flex-basis 0.3s ease;
             }
 
-            hnl-power-bar-source-label:last-child,
-            hnl-power-bar-source-accolade:last-child,
-            hnl-power-bar-destination:last-child {
+            hnl-flow-bar-source-label:last-child,
+            hnl-flow-bar-source-accolade:last-child,
+            hnl-flow-bar-destination:last-child {
                 --grow: 1;
             }
 
             /* Presentational */
-            hnl-power-bar-destination {
+            hnl-flow-bar-destination {
                 align-items: center;
                 justify-content: center;
                 padding: max(.15cqi,2px);
@@ -524,11 +524,11 @@ class HnlPowerBarsCard extends LitElement {
                 overflow: hidden;
                 --adjusted-bg-color: oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity));
             }
-            hnl-power-bar-destination:last-child {
+            hnl-flow-bar-destination:last-child {
                 border-radius: 0 max(0px, calc(var(--border-radius, 8px) - var(--accolade-height))) 0 0;
             }
 
-            hnl-power-bar-source-accolade {
+            hnl-flow-bar-source-accolade {
                 grid-row: 2;
                 border: var(--accolade-border-width, var(--accolade-height, 2px)) solid var(--adjusted-bg-color, green);
                 border-bottom: 0;
@@ -539,16 +539,16 @@ class HnlPowerBarsCard extends LitElement {
                 min-width: var(--border-radius, 8px);
             }
 
-            hnl-power-bar-source-accolade:last-child {
+            hnl-flow-bar-source-accolade:last-child {
                 border-radius: 0 var(--border-radius, 8px) 0 0;
             }
-            hnl-power-bar-source-accolades > :first-child:not(:only-child),
-            hnl-power-bar-source-accolade:nth-child(n+2):not(:last-child) {
+            hnl-flow-bar-source-accolades > :first-child:not(:only-child),
+            hnl-flow-bar-source-accolade:nth-child(n+2):not(:last-child) {
               border-right: 0;
             }
 
-            hnl-power-bar-source-label > span,
-            hnl-power-bar-destination > span {
+            hnl-flow-bar-source-label > span,
+            hnl-flow-bar-destination > span {
                 display: flex;
                 max-width: 100%;
                 gap: 3px;
@@ -562,11 +562,11 @@ class HnlPowerBarsCard extends LitElement {
                 align-items: center;
             }
 
-            hnl-power-bar-destination > span {
+            hnl-flow-bar-destination > span {
                 background-color: oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 1);
             }
 
-            hnl-power-bar-source-label {
+            hnl-flow-bar-source-label {
                 --slanted-edge: 20px;
                 --correction: min(var(--accolade-height), calc(var(--ha-card-border-radius, 14px) / 2), var(--accolade-border-width));
                 padding-right: calc(var(--border-radius, 8px) - var(--correction, 0px));
@@ -575,7 +575,7 @@ class HnlPowerBarsCard extends LitElement {
                 overflow: hidden;
             }
 
-            hnl-power-bar-source-label > span {
+            hnl-flow-bar-source-label > span {
                 --adjusted-bg-color: oklch(from var(--background-color) calc(l) calc(c) h / 1);
                 align-items: center;
                 background: var(--adjusted-bg-color, rgba(0, 0, 0, 0.4));
@@ -599,13 +599,13 @@ class HnlPowerBarsCard extends LitElement {
 
             /* When card height >= 160px, show destination names below the value */
             @container card (min-height: 160px) {
-                hnl-power-bar-destination {
+                hnl-flow-bar-destination {
                     flex-direction: column;
                     justify-content: center;
                     gap: 2px;
                 }
 
-                hnl-power-bar-destination .entity-name {
+                hnl-flow-bar-destination .entity-name {
                     display: block;
                     color: inherit;
                     opacity: 0.85;
@@ -614,13 +614,13 @@ class HnlPowerBarsCard extends LitElement {
 
             /* When card height >= 200px, scale up spacing */
             @container card (min-height: 200px) {
-                hnl-power-bars {
+                hnl-flow-bars {
                     --accolade-height: 10px;
                 }
             }
 
             /* Hatched background pattern (per-element, not on source labels) */
-            hnl-power-bar-source-accolade.hatched {
+            hnl-flow-bar-source-accolade.hatched {
                 background: repeating-linear-gradient(
                     -45deg,
                     oklch(from var(--background-color) l c h / var(--accolade-bg-opacity)) 0px,
@@ -630,7 +630,7 @@ class HnlPowerBarsCard extends LitElement {
                 );
             }
 
-            hnl-power-bar-destination.hatched {
+            hnl-flow-bar-destination.hatched {
                 background: repeating-linear-gradient(
                     -45deg,
                     var(--adjusted-bg-color) 0px,
@@ -640,7 +640,7 @@ class HnlPowerBarsCard extends LitElement {
                 );
             }
 
-            hnl-power-bar-destination.hatched > span {
+            hnl-flow-bar-destination.hatched > span {
                 background-color: oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 0.6);
             }
 
@@ -648,4 +648,4 @@ class HnlPowerBarsCard extends LitElement {
     }
 }
 
-customElements.define("hnl-power-bars-card", HnlPowerBarsCard);
+customElements.define("hnl-flow-bars-card", HnlFlowBarsCard);

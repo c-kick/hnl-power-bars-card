@@ -1,6 +1,6 @@
-# HNL Power Bars Card
+# HNL Flow Bars Card
 
-A custom Home Assistant Lovelace card that visualizes power production vs consumption as proportional stacked bars with accolade connectors.
+A custom Home Assistant Lovelace card that visualizes supply vs demand flows as proportional stacked bars with accolade connectors.
 
 <img width="927" height="87" alt="image" src="https://github.com/user-attachments/assets/1f5d5d67-b1b0-411b-ab72-46cc1fa778a6" />
 
@@ -10,21 +10,21 @@ Production sources (e.g. solar, battery) are shown on top with slanted labels an
 
 ### HACS (recommended)
 1. Open HACS → Frontend → three-dot menu → Custom repositories
-2. Add `c-kick/hnl-power-bars-card` as a **Dashboard** repository
-3. Install "HNL Power Bars Card"
+2. Add `c-kick/hnl-flow-bars-card` as a **Dashboard** repository
+3. Install "HNL Flow Bars Card"
 4. Restart Home Assistant
 
 ### Manual
-1. Download `hnl-power-bars-card.js` from the [latest release](https://github.com/c-kick/hnl-power-bars-card/releases)
-2. Copy it to `/config/www/hnl-power-bars-card.js`
+1. Download `hnl-flow-bars-card.js` from the [latest release](https://github.com/c-kick/hnl-flow-bars-card/releases)
+2. Copy it to `/config/www/hnl-flow-bars-card.js`
 3. Add the resource in Settings → Dashboards → Resources:
-   - URL: `/local/hnl-power-bars-card.js`
+   - URL: `/local/hnl-flow-bars-card.js`
    - Type: JavaScript Module
 
 ## Configuration
 
 ```yaml
-type: custom:hnl-power-bars-card
+type: custom:hnl-flow-bars-card
 unit_of_measurement: W
 rounding: 0
 hide_zero_values: true
@@ -102,18 +102,18 @@ These defaults are defined in `src/const.js` and can be overridden per entity/re
 
 ```css
 :host {
-  --hnl-power-bars-color-production: #ff9800;
-  --hnl-power-bars-color-consumption: #488fc2;
-  --hnl-power-bars-color-production-remainder: #488fc2;
-  --hnl-power-bars-color-consumption-remainder: #8353d1;
+  --hnl-flow-bars-color-production: #ff9800;
+  --hnl-flow-bars-color-consumption: #488fc2;
+  --hnl-flow-bars-color-production-remainder: #488fc2;
+  --hnl-flow-bars-color-consumption-remainder: #8353d1;
 }
 ```
 
 ## Development
 
 ```bash
-git clone https://github.com/c-kick/hnl-power-bars-card.git
-cd hnl-power-bars-card
+git clone https://github.com/c-kick/hnl-flow-bars-card.git
+cd hnl-flow-bars-card
 npm install
 npm start    # watch mode with dev server on :5000
 npm run build  # production build

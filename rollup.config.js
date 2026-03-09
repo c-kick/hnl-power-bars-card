@@ -17,9 +17,9 @@ const serveopts = {
 };
 
 export default {
-  input: 'src/hnl-power-bars-card.js',
+  input: 'src/hnl-flow-bars-card.js',
   output: {
-    file: 'dist/hnl-power-bars-card.js',
+    file: 'dist/hnl-flow-bars-card.js',
     format: 'es',
     inlineDynamicImports: true,
   },
