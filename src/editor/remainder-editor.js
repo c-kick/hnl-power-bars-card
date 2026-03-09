@@ -29,13 +29,6 @@ class RemainderEditor extends LitElement {
   render() {
     if (!this.remainder) return html``;
 
-    const headerContent = html`
-      <span class="panel-header">
-        ${this.icon ? html`<ha-icon icon=${this.icon} class="panel-icon"></ha-icon>` : ''}
-        <span>${this.label || 'Remainder'}</span>
-      </span>
-    `;
-
     return html`
       <ha-expansion-panel outlined>
         <span slot="header" class="panel-header">

@@ -40,12 +40,12 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     _dispatchHassEvent(node, type, detail, options = {}) {
-        const event = new Event(type, {
+        const event = new CustomEvent(type, {
+            detail,
             bubbles: options.bubbles ?? true,
             cancelable: options.cancelable ?? false,
             composed: options.composed ?? true,
         });
-        event.detail = detail;
         node.dispatchEvent(event);
         return event;
     }
@@ -168,7 +168,7 @@ class HnlFlowBarsCard extends LitElement {
 
     _renderSourceLabel(ent) {
         return html`<hnl-flow-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
-            <ha-icon icon="${ent.icon || computeEntityIcon(ent)}"></ha-icon>
+            <ha-icon icon="${ent.icon || 'mdi:eye'}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
           </span></hnl-flow-bar-source-label>`;
     }
@@ -323,6 +323,7 @@ class HnlFlowBarsCard extends LitElement {
             throw new Error("You need to define both production and consumption entities");
         }
 
+        this._previousValues = {};
         this._rawConfig = {
             production: this._normalizeEntityConfig(config.production),
             consumption: this._normalizeEntityConfig(config.consumption),

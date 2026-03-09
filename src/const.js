@@ -1,4 +1,4 @@
-export const CARD_VERSION = '1.2.1';
+export const CARD_VERSION = '1.2.2';
 export const CARD_NAME = 'hnl-flow-bars-card';
 export const CARD_DESCRIPTION = 'A flow bar visualization card for Home Assistant';
 
