@@ -24,7 +24,6 @@ class HnlPowerBarsCard extends LitElement {
     static get properties() {
         return {
             hass: {},
-            config: {},
         };
     }
 
@@ -80,7 +79,7 @@ class HnlPowerBarsCard extends LitElement {
               };
             }
 
-            let value = parseFloat(stateObj.state) || 0;
+            let value = Math.max(0, parseFloat(stateObj.state) || 0);
 
             if (this._rawConfig.easing) {
               const prev = this._previousValues[entityId] ?? value;
@@ -118,7 +117,7 @@ class HnlPowerBarsCard extends LitElement {
             consumption_remainder: this._rawConfig.consumption_remainder,
             production_remainder: this._rawConfig.production_remainder,
             rounding: this._rawConfig.rounding,
-            hidezerovalues: this._rawConfig.hidezerovalues,
+            hide_zero_values: this._rawConfig.hide_zero_values,
             unit_of_measurement: this._rawConfig.unit_of_measurement,
             card_class: this._rawConfig.transparent ? 'transparent' : ''
         };
@@ -147,6 +146,48 @@ class HnlPowerBarsCard extends LitElement {
 
         const remainder = this._roundOff(maxValue - total);
         return { bars, total, remainder };
+    }
+
+    _shouldShowBar(ent) {
+        return ent.value > 0 || !this._parsedConfig.hide_zero_values;
+    }
+
+    _renderSourceLabel(ent) {
+        return html`<hnl-power-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
+            <ha-icon icon="${ent.icon || computeEntityIcon(ent)}"></ha-icon>
+            <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
+          </span></hnl-power-bar-source-label>`;
+    }
+
+    _renderAccolade(ent) {
+        return html`<hnl-power-bar-source-accolade style="--background-color:${ent.color};--width:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};"></hnl-power-bar-source-accolade>`;
+    }
+
+    _renderDestination(ent) {
+        return html`<hnl-power-bar-destination title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
+            <ha-icon icon="${ent.icon}"></ha-icon>
+            <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
+          </span></hnl-power-bar-destination>`;
+    }
+
+    _renderRemainder(type, remainderValue) {
+        const cfg = this._parsedConfig[`${type}_remainder`];
+        const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || '';
+        if (type === 'production') {
+            return html`<hnl-power-bar-source-label title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};"><span>
+                <ha-icon icon="${cfg.icon}"></ha-icon>
+                <span>${remainderValue} ${cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span>
+                </span></hnl-power-bar-source-label>`;
+        }
+        return html`<hnl-power-bar-destination title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--destination-bg-opacity:${cfg.bg_opacity};"><span>
+            <ha-icon icon="${cfg.icon}"></ha-icon>
+            <span>${remainderValue} ${cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span>
+            </span></hnl-power-bar-destination>`;
+    }
+
+    _renderRemainderAccolade(type) {
+        const cfg = this._parsedConfig[`${type}_remainder`];
+        return html`<hnl-power-bar-source-accolade style="--background-color:${cfg.color};--accolade-bg-opacity:${cfg.bg_opacity};"></hnl-power-bar-source-accolade>`;
     }
 
     _normalizeEntityConfig(input) {
@@ -207,57 +248,26 @@ class HnlPowerBarsCard extends LitElement {
             consumption_remainder: consRemainder,
         };
 
-        return html`
+        const visibleProd = barData.production.filter((ent) => this._shouldShowBar(ent));
+        const visibleCons = barData.consumption.filter((ent) => this._shouldShowBar(ent));
 
+        return html`
             <ha-card class="${this._parsedConfig.card_class}">
                 <div class="card-content">
         <hnl-power-bars>
             <hnl-power-bar-source-group>
                 <hnl-power-bar-source-labels>
-                    ${barData.production.map((ent) => {
-                        return ent && (!this._parsedConfig.hidezerovalues && ent.value <= 0 || ent.value > 0)
-                                ? html`<hnl-power-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
-                                    <ha-icon icon="${ent.icon || computeEntityIcon(ent)}"></ha-icon>
-                                    <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
-                                  </span></hnl-power-bar-source-label>`
-                                : null;
-                    })}
-                    ${totals.production_remainder > 0
-                            ? html`<hnl-power-bar-source-label title="${this._parsedConfig.production_remainder.name}: ${totals.production_remainder} ${this._parsedConfig.production_remainder.unit_of_measurement || this._parsedConfig.unit_of_measurement || ''}" style="--background-color:${this._parsedConfig.production_remainder.color};--text-color:${this._parsedConfig.production_remainder.text_color};"><span>
-                            <ha-icon icon="${this._parsedConfig.production_remainder.icon}"></ha-icon>
-                            <span>${totals.production_remainder} ${this._parsedConfig.production_remainder.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span>
-                            </span></hnl-power-bar-source-label>`
-                            : null
-                    }
+                    ${visibleProd.map((ent) => this._renderSourceLabel(ent))}
+                    ${totals.production_remainder > 0 ? this._renderRemainder('production', totals.production_remainder) : null}
                 </hnl-power-bar-source-labels>
                 <hnl-power-bar-source-accolades>
-                    ${barData.production.map((ent) => {
-                        return ent && (!this._parsedConfig.hidezerovalues && ent.value <= 0 || ent.value > 0)
-                                ? html`<hnl-power-bar-source-accolade style="--background-color:${ent.color};--width:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};"></hnl-power-bar-source-accolade>`
-                                : null;
-                    })}
-                    ${totals.production_remainder > 0
-                            ? html`<hnl-power-bar-source-accolade style="--background-color:${this._parsedConfig.production_remainder.color};--accolade-bg-opacity:${this._parsedConfig.production_remainder.bg_opacity};"></hnl-power-bar-source-accolade>`
-                            : null
-                    }
+                    ${visibleProd.map((ent) => this._renderAccolade(ent))}
+                    ${totals.production_remainder > 0 ? this._renderRemainderAccolade('production') : null}
                 </hnl-power-bar-source-accolades>
             </hnl-power-bar-source-group>
             <hnl-power-bar-destination-group>
-                ${barData.consumption.map((ent) => {
-                    return ent && (!this._parsedConfig.hidezerovalues && ent.value <= 0 || ent.value > 0)
-                            ? html`<hnl-power-bar-destination title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
-                                    <ha-icon icon="${ent.icon}"></ha-icon>
-                                    <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
-                                  </span></hnl-power-bar-destination>`
-                            : null;
-                })}
-                ${totals.consumption_remainder > 0
-                        ? html`<hnl-power-bar-destination title="${this._parsedConfig.consumption_remainder.name}: ${totals.consumption_remainder} ${this._parsedConfig.consumption_remainder.unit_of_measurement || this._parsedConfig.unit_of_measurement || ''}" style="--background-color:${this._parsedConfig.consumption_remainder.color};--destination-bg-opacity:${this._parsedConfig.consumption_remainder.bg_opacity};"><span>
-                        <ha-icon icon="${this._parsedConfig.consumption_remainder.icon}"></ha-icon>
-                        <span>${totals.consumption_remainder} ${this._parsedConfig.consumption_remainder.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span>
-                        </span></hnl-power-bar-destination>`
-                        : null
-                }
+                ${visibleCons.map((ent) => this._renderDestination(ent))}
+                ${totals.consumption_remainder > 0 ? this._renderRemainder('consumption', totals.consumption_remainder) : null}
             </hnl-power-bar-destination-group>
         </hnl-power-bars>
                 </div>
@@ -279,8 +289,6 @@ class HnlPowerBarsCard extends LitElement {
         const relevantEntities = [
             ...this._rawConfig.production.map((p) => p.entity),
             ...this._rawConfig.consumption.map((c) => c.entity),
-            ...this._rawConfig.production.map((p) => p.remainder).filter(Boolean),
-            ...this._rawConfig.consumption.map((c) => c.remainder).filter(Boolean),
         ];
 
         const anyChanged = relevantEntities.some((entity_id) => {
@@ -308,7 +316,7 @@ class HnlPowerBarsCard extends LitElement {
                 icon: config.production_remainder?.icon || 'mdi:eye',
                 color: config.production_remainder?.color || 'var(--hnl-power-bars-color-production-remainder)',
                 bg_opacity: config.production_remainder?.bg_opacity || 'inherit',
-                text_color: config.production_remainder?.text_color || 'var(--hnl-power-bars-text_color-production-remainder)',
+                text_color: config.production_remainder?.text_color || 'var(--hnl-power-bars-text-color-production-remainder)',
                 unit_of_measurement: config.production_remainder?.unit_of_measurement || null
             },
             consumption_remainder: {
@@ -316,11 +324,11 @@ class HnlPowerBarsCard extends LitElement {
                 icon: config.consumption_remainder?.icon || 'mdi:eye',
                 color: config.consumption_remainder?.color || 'var(--hnl-power-bars-color-consumption-remainder)',
                 bg_opacity: config.consumption_remainder?.bg_opacity || 'inherit',
-                text_color: config.consumption_remainder?.text_color || 'var(--hnl-power-bars-text_color-consumption-remainder)',
+                text_color: config.consumption_remainder?.text_color || 'var(--hnl-power-bars-text-color-consumption-remainder)',
                 unit_of_measurement: config.consumption_remainder?.unit_of_measurement || null
             },
             easing: config.easing ?? false,
-            hidezerovalues: config.hide_zero_values ?? true,
+            hide_zero_values: config.hide_zero_values ?? true,
             rounding: config.rounding ?? 0,
             transparent: config.transparent ?? true,
             unit_of_measurement: config.unit_of_measurement,
@@ -328,6 +336,14 @@ class HnlPowerBarsCard extends LitElement {
         };
     }
 
+
+    //part of HASS card API
+    static getStubConfig() {
+        return {
+            production: [{ entity: "sensor.solar_power" }],
+            consumption: [{ entity: "sensor.house_power" }],
+        };
+    }
 
     //part of HASS card API
     // The height of your card. Home Assistant uses this to automatically
@@ -360,7 +376,7 @@ class HnlPowerBarsCard extends LitElement {
                 --hnl-power-bars-color-production-4: oklch(from var(--hnl-power-bars-color-production) calc(l * 1.1) c calc(h + 30) / 1);
 
                 --hnl-power-bars-color-production-remainder: var(--energy-grid-consumption-color-1);
-                --hnl-power-bars-text_color-production-remainder: #FFF;
+                --hnl-power-bars-text-color-production-remainder: #FFF;
 
                 --hnl-power-bars-color-consumption: var(--energy-grid-consumption-color);
                 --hnl-power-bars-color-consumption-0: oklch(from var(--hnl-power-bars-color-consumption) l c h / 1);
@@ -370,7 +386,7 @@ class HnlPowerBarsCard extends LitElement {
                 --hnl-power-bars-color-consumption-4: oklch(from var(--hnl-power-bars-color-consumption) calc(l * 1.1) c calc(h + 30) / 1);
 
                 --hnl-power-bars-color-consumption-remainder: #00c1a0;
-                --hnl-power-bars-text_color-consumption-remainder: #000e;
+                --hnl-power-bars-text-color-consumption-remainder: #000e;
 
                 font-size: var(--font-size, 0.8em);
                 font-weight: 500;
@@ -470,10 +486,6 @@ class HnlPowerBarsCard extends LitElement {
             }
 
             /* Presentational */
-            .striped {
-                background: repeating-linear-gradient(45deg, oklch(from var(--background-color) calc(l * .8) c h / 1) 0px, oklch(from var(--background-color) calc(l * .8) c h / 1) 20px, var(--background-color) 20px, var(--background-color) 40px, oklch(from var(--background-color) calc(l * .8) c h / 1) 40px);
-            }
-
             hnl-power-bar-destination {
                 align-items: center;
                 justify-content: center;
