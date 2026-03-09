@@ -18,6 +18,8 @@ window.customCards.push({
     type: CARD_NAME,
     name: 'HNL Flow Bars Card',
     description: CARD_DESCRIPTION,
+    preview: true,
+    documentationURL: 'https://github.com/c-kick/hnl-flow-bars-card',
 });
 
 class HnlFlowBarsCard extends LitElement {
@@ -50,12 +52,20 @@ class HnlFlowBarsCard extends LitElement {
         return event;
     }
 
-    _handleMoreInfo(entityId) {
-        if (entityId) {
-            this._dispatchHassEvent(this, "hass-more-info", {
-                entityId,
-            });
-        }
+    _handleAction(entityId, actionType = 'tap') {
+        if (!entityId) return;
+
+        const actionConfig = {
+            entity: entityId,
+            tap_action: { action: 'more-info' },
+            hold_action: { action: 'more-info' },
+            double_tap_action: { action: 'none' },
+        };
+
+        this._dispatchHassEvent(this, "hass-action", {
+            config: actionConfig,
+            action: actionType,
+        });
     }
 
     get _parsedConfig() {
@@ -184,7 +194,7 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     _renderSourceLabel(ent) {
-        return html`<hnl-flow-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
+        return html`<hnl-flow-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleAction(ent.entity_id)}><span>
             <ha-icon icon="${ent.icon || 'mdi:eye'}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
           </span></hnl-flow-bar-source-label>`;
@@ -195,7 +205,7 @@ class HnlFlowBarsCard extends LitElement {
     }
 
     _renderDestination(ent) {
-        return html`<hnl-flow-bar-destination title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
+        return html`<hnl-flow-bar-destination title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleAction(ent.entity_id)}><span>
             <ha-icon icon="${ent.icon}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
           </span><span class="entity-name">${ent.name}</span></hnl-flow-bar-destination>`;
