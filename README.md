@@ -30,6 +30,7 @@ rounding: 0
 hide_zero_values: true
 transparent: true
 easing: false
+accolade_style: hatched
 production:
   - entity: sensor.solar_power
     icon: mdi:solar-power-variant
@@ -61,6 +62,7 @@ consumption_remainder:
 | `hide_zero_values` | bool | `true` | Hide bars with zero values |
 | `transparent` | bool | `true` | Remove card background |
 | `easing` | bool | `false` | Smooth value transitions |
+| `accolade_style` | string | `hatched` | Visual theme (see [Themes](#themes) below) |
 | `production_remainder` | object | | Config for production remainder bar |
 | `consumption_remainder` | object | | Config for consumption remainder bar |
 
@@ -79,11 +81,27 @@ consumption_remainder:
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `name` | string | "Production/Consumption remainder" | Label |
+| `name` | string | `Shortfall` / `Surplus` | Label |
 | `icon` | string | `mdi:eye` | MDI icon |
 | `color` | string | theme variable | CSS color |
 | `bg_opacity` | string | `inherit` | Background opacity |
 | `text_color` | string | theme variable | Text color |
+| `unit_of_measurement` | string | from entity | Unit override |
+
+### Themes
+
+The `accolade_style` option controls the visual style of the bracket connectors and background patterns. Available themes:
+
+| Value | Description |
+|---|---|
+| `hatched` | **(default)** Solid fill with hatched pattern on remainder bars |
+| `classic` | Solid fill with border, no hatching |
+| `gradient` | Fades from source color downward |
+| `tapered` | Narrows toward destination (Sankey-diagram feel) |
+| `dotted` | Thin glowing line with dot-grid background |
+| `dashed` | Dashed border with cross-hatch fill |
+| `shadow` | Invisible body with inset shadow and vertical lines |
+| `double-line` | Twin parallel lines with sparse diagonal stripes |
 
 ## Default colors
 
@@ -96,7 +114,7 @@ The card's default colors follow the Home Assistant Energy Dashboard conventions
 | **Shortfall** | `#488fc2` (blue) | `--energy-grid-consumption-color` | Demand that sources couldn't cover |
 | **Surplus** | `#8353d1` (purple) | `--energy-grid-return-color` | Supply that destinations didn't use |
 
-Destinations and shortfall share the same blue because both represent consumption from the grid's perspective — shortfall is the portion of demand that had to be imported. The hatched background pattern (enabled by default on shortfall and surplus) visually distinguishes remainders from regular bars.
+Destinations and shortfall share the same blue because both represent consumption from the grid's perspective — shortfall is the portion of demand that had to be imported. With the default `hatched` theme, remainder bars get a diagonal stripe pattern to visually distinguish them from regular bars.
 
 These defaults are defined in `src/const.js` and can be overridden per entity/remainder in the card config. The card also exposes CSS custom properties for theme-level overrides:
 

@@ -1,5 +1,5 @@
 import { LitElement, html, css, unsafeCSS } from 'lit';
-import { COLOR_SOURCE, COLOR_SHORTFALL, COLOR_DESTINATION, COLOR_SURPLUS } from '../const.js';
+import { COLOR_SOURCE, COLOR_SHORTFALL, COLOR_DESTINATION, COLOR_SURPLUS, ACCOLADE_STYLES, DEFAULT_ACCOLADE_STYLE } from '../const.js';
 import './entity-list-editor.js';
 import './remainder-editor.js';
 
@@ -32,6 +32,7 @@ class HnlFlowBarsCardEditor extends LitElement {
     const config = { ...this._config };
 
     if (!config.unit_of_measurement) delete config.unit_of_measurement;
+    if (!config.accolade_style || config.accolade_style === DEFAULT_ACCOLADE_STYLE) delete config.accolade_style;
 
     config.production = config.production.filter((e) => e.entity);
     config.consumption = config.consumption.filter((e) => e.entity);
@@ -43,7 +44,6 @@ class HnlFlowBarsCardEditor extends LitElement {
       if (ent.unit_of_measurement) cleaned.unit_of_measurement = ent.unit_of_measurement;
       if (ent.bg_opacity) cleaned.bg_opacity = ent.bg_opacity;
       if (ent.text_color) cleaned.text_color = ent.text_color;
-      if (ent.hatched) cleaned.hatched = ent.hatched;
       return cleaned;
     };
     config.production = config.production.map(cleanEntity);
@@ -52,7 +52,7 @@ class HnlFlowBarsCardEditor extends LitElement {
     ['production_remainder', 'consumption_remainder'].forEach((key) => {
       if (config[key]) {
         const r = config[key];
-        const hasCustomValues = r.name || r.icon || r.color || r.bg_opacity || r.text_color || r.hatched || r.unit_of_measurement;
+        const hasCustomValues = r.name || r.icon || r.color || r.bg_opacity || r.text_color || r.unit_of_measurement;
         if (!hasCustomValues) {
           delete config[key];
         }
@@ -190,6 +190,23 @@ class HnlFlowBarsCardEditor extends LitElement {
               @change=${(ev) => this._toggleChanged('easing', ev)}
             ></ha-switch>
           </div>
+
+          <div class="select-row">
+            <div class="select-label">
+              <span>Theme</span>
+              <span class="toggle-description">Visual style of the brackets and backgrounds</span>
+            </div>
+            <select
+              .value=${this._config.accolade_style || DEFAULT_ACCOLADE_STYLE}
+              @change=${(ev) => this._textChanged('accolade_style', ev)}
+            >
+              ${ACCOLADE_STYLES.map((s) => html`
+                <option value="${s.value}" ?selected=${(this._config.accolade_style || DEFAULT_ACCOLADE_STYLE) === s.value}>
+                  ${s.label}
+                </option>
+              `)}
+            </select>
+          </div>
         </div>
 
         <div class="divider"></div>
@@ -324,6 +341,38 @@ class HnlFlowBarsCardEditor extends LitElement {
 
       ha-textfield {
         display: block;
+      }
+
+      .select-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        gap: 16px;
+      }
+
+      .select-label {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+      }
+
+      .select-label > span:first-child {
+        color: var(--primary-text-color);
+        font-size: 0.95em;
+      }
+
+      select {
+        appearance: auto;
+        padding: 6px 8px;
+        border-radius: 4px;
+        border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.12));
+        background: var(--card-background-color, var(--primary-background-color));
+        color: var(--primary-text-color);
+        font-size: 0.9em;
+        cursor: pointer;
+        min-width: 140px;
       }
 
       /* Remainder diagram */

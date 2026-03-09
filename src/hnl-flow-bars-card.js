@@ -3,7 +3,7 @@ import { computeEntityIcon } from './utils.js';
 import {
     CARD_VERSION, CARD_NAME, CARD_DESCRIPTION,
     COLOR_SOURCE, COLOR_SHORTFALL, COLOR_DESTINATION, COLOR_SURPLUS,
-    TEXT_COLOR_SHORTFALL, TEXT_COLOR_SURPLUS,
+    TEXT_COLOR_SHORTFALL, TEXT_COLOR_SURPLUS, DEFAULT_ACCOLADE_STYLE,
 } from './const.js';
 import './editor/hnl-flow-bars-card-editor.js';
 
@@ -81,7 +81,6 @@ class HnlFlowBarsCard extends LitElement {
                 color: item.color || fallbackVar,
                 bg_opacity: item.bg_opacity || 'inherit',
                 text_color: item.text_color || 'inherit',
-                hatched: item.hatched || false,
                 unit_of_measurement: item.unit_of_measurement,
               };
             }
@@ -147,7 +146,6 @@ class HnlFlowBarsCard extends LitElement {
                 color: ent.color,
                 bg_opacity: ent.bg_opacity,
                 text_color: ent.text_color,
-                hatched: ent.hatched,
                 width,
                 unit_of_measurement: unit,
             };
@@ -161,19 +159,26 @@ class HnlFlowBarsCard extends LitElement {
         return ent.value > 0 || !this._parsedConfig.hide_zero_values;
     }
 
+    _getAccoladeClasses(isRemainder = false) {
+        const style = this._rawConfig.accolade_style;
+        const themeClass = style !== 'classic' && style !== DEFAULT_ACCOLADE_STYLE ? `accolade-${style}` : '';
+        const hatchedClass = isRemainder && style === DEFAULT_ACCOLADE_STYLE ? 'hatched' : '';
+        return [themeClass, hatchedClass].filter(Boolean).join(' ');
+    }
+
     _renderSourceLabel(ent) {
-        return html`<hnl-flow-bar-source-label class="${ent.hatched ? 'hatched' : ''}" title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
+        return html`<hnl-flow-bar-source-label title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
             <ha-icon icon="${ent.icon || computeEntityIcon(ent)}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
           </span></hnl-flow-bar-source-label>`;
     }
 
     _renderAccolade(ent) {
-        return html`<hnl-flow-bar-source-accolade class="${ent.hatched ? 'hatched' : ''}" style="--background-color:${ent.color};--width:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};"></hnl-flow-bar-source-accolade>`;
+        return html`<hnl-flow-bar-source-accolade class="${this._getAccoladeClasses()}" style="--background-color:${ent.color};--width:${ent.width}%;--accolade-bg-opacity:${ent.bg_opacity};"></hnl-flow-bar-source-accolade>`;
     }
 
     _renderDestination(ent) {
-        return html`<hnl-flow-bar-destination class="${ent.hatched ? 'hatched' : ''}" title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
+        return html`<hnl-flow-bar-destination title="${ent.name}: ${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement || ''}" style="--background-color:${ent.color};--destination-bg-opacity:${ent.bg_opacity};--text-color:${ent.text_color};--width:${ent.width}%;cursor:pointer;" @click=${() => this._handleMoreInfo(ent.entity_id)}><span>
             <ha-icon icon="${ent.icon}"></ha-icon>
             <span>${this._roundOff(ent.value)} ${this._parsedConfig.unit_of_measurement || ent.unit_of_measurement}</span>
           </span><span class="entity-name">${ent.name}</span></hnl-flow-bar-destination>`;
@@ -182,9 +187,9 @@ class HnlFlowBarsCard extends LitElement {
     _renderRemainder(type, remainderValue) {
         const cfg = this._parsedConfig[`${type}_remainder`];
         const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || '';
-        const hatchedClass = cfg.hatched ? 'hatched' : '';
+        const hatchedClass = this._rawConfig.accolade_style === DEFAULT_ACCOLADE_STYLE ? 'hatched' : '';
         if (type === 'production') {
-            return html`<hnl-flow-bar-source-label class="${hatchedClass}" title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};"><span>
+            return html`<hnl-flow-bar-source-label title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};"><span>
                 <ha-icon icon="${cfg.icon}"></ha-icon>
                 <span>${remainderValue} ${cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement}</span>
                 </span></hnl-flow-bar-source-label>`;
@@ -197,8 +202,7 @@ class HnlFlowBarsCard extends LitElement {
 
     _renderRemainderAccolade(type) {
         const cfg = this._parsedConfig[`${type}_remainder`];
-        const hatchedClass = cfg.hatched ? 'hatched' : '';
-        return html`<hnl-flow-bar-source-accolade class="${hatchedClass}" style="--background-color:${cfg.color};--accolade-bg-opacity:${cfg.bg_opacity};"></hnl-flow-bar-source-accolade>`;
+        return html`<hnl-flow-bar-source-accolade class="${this._getAccoladeClasses(true)}" style="--background-color:${cfg.color};--accolade-bg-opacity:${cfg.bg_opacity};"></hnl-flow-bar-source-accolade>`;
     }
 
     _normalizeEntityConfig(input) {
@@ -328,7 +332,6 @@ class HnlFlowBarsCard extends LitElement {
                 color: config.production_remainder?.color || COLOR_SHORTFALL,
                 bg_opacity: config.production_remainder?.bg_opacity || 'inherit',
                 text_color: config.production_remainder?.text_color || TEXT_COLOR_SHORTFALL,
-                hatched: config.production_remainder?.hatched ?? true,
                 unit_of_measurement: config.production_remainder?.unit_of_measurement || null
             },
             consumption_remainder: {
@@ -337,9 +340,9 @@ class HnlFlowBarsCard extends LitElement {
                 color: config.consumption_remainder?.color || COLOR_SURPLUS,
                 bg_opacity: config.consumption_remainder?.bg_opacity || 'inherit',
                 text_color: config.consumption_remainder?.text_color || TEXT_COLOR_SURPLUS,
-                hatched: config.consumption_remainder?.hatched ?? true,
                 unit_of_measurement: config.consumption_remainder?.unit_of_measurement || null
             },
+            accolade_style: config.accolade_style || DEFAULT_ACCOLADE_STYLE,
             easing: config.easing ?? false,
             hide_zero_values: config.hide_zero_values ?? true,
             rounding: config.rounding ?? 0,
@@ -370,12 +373,7 @@ class HnlFlowBarsCard extends LitElement {
 
     //part of HASS card API — section view grid sizing
     getGridOptions() {
-        return {
-            columns: 6,
-            min_columns: 3,
-            rows: 2,
-            min_rows: 1,
-        };
+        return { columns: 6, min_columns: 3, rows: 2, min_rows: 1 };
     }
 
     //part of LitElement interface
@@ -391,6 +389,7 @@ class HnlFlowBarsCard extends LitElement {
                 --mdc-icon-size: min(calc(var(--font-size, 0.8em) + 0.5em), 1.2em);
                 --label-edge-padding: calc(var(--font-size, 0.8em) * .7);
                 --label-padding: calc(var(--font-size, 0.8em) * 0.15) calc(var(--font-size, 0.8em) * 0.5);
+                --min-bar-width: max(var(--mdc-icon-size, 1.2em) + 3.5em, 60px);
 
                 --hnl-flow-bars-color-default: hsl(205, 90%, 55%);
 
@@ -508,6 +507,13 @@ class HnlFlowBarsCard extends LitElement {
                 transition: flex-basis 0.3s ease;
             }
 
+            hnl-flow-bar-source-label {
+                min-width: calc(var(--min-bar-width) + var(--slanted-edge, 20px));
+            }
+            hnl-flow-bar-source-accolade {
+                min-width: var(--min-bar-width);
+            }
+
             hnl-flow-bar-source-label:last-child,
             hnl-flow-bar-source-accolade:last-child,
             hnl-flow-bar-destination:last-child {
@@ -522,6 +528,7 @@ class HnlFlowBarsCard extends LitElement {
                 background-color: var(--adjusted-bg-color);
                 color: white;
                 overflow: hidden;
+                min-width: var(--min-bar-width);
                 --adjusted-bg-color: oklch(from var(--background-color) l calc(c * 1.2) h / var(--destination-bg-opacity));
             }
             hnl-flow-bar-destination:last-child {
@@ -564,6 +571,7 @@ class HnlFlowBarsCard extends LitElement {
 
             hnl-flow-bar-destination > span {
                 background-color: oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 1);
+                border-radius: clamp(5cqb, var(--border-radius, 8px), var(--ha-card-border-radius, 14px));
             }
 
             hnl-flow-bar-source-label {
@@ -642,6 +650,122 @@ class HnlFlowBarsCard extends LitElement {
 
             hnl-flow-bar-destination.hatched > span {
                 background-color: oklch(from var(--adjusted-bg-color) calc(l * 0.8) c h / 0.6);
+            }
+
+            /* ═══ Accolade variant: Gradient fade ═══ */
+            hnl-flow-bar-source-accolade.accolade-gradient {
+                border: none;
+                background: linear-gradient(
+                    to bottom,
+                    oklch(from var(--background-color) l c h / 1) 0%,
+                    oklch(from var(--background-color) l c h / var(--accolade-bg-opacity)) 40%,
+                    oklch(from var(--background-color) l c h / 0) 100%
+                );
+            }
+
+            /* ═══ Accolade variant: Tapered wedge ═══ */
+            hnl-flow-bar-source-accolade.accolade-tapered {
+                border: none;
+                border-top: var(--accolade-border-width, 2px) solid var(--adjusted-bg-color);
+                clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 4px 100%);
+            }
+            hnl-flow-bar-source-accolade.accolade-tapered:first-child {
+                clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+            }
+            hnl-flow-bar-source-accolade.accolade-tapered:last-child {
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 4px 100%);
+            }
+
+            /* ═══ Accolade variant: Dotted ═══ */
+            hnl-flow-bar-source-accolade.accolade-dotted {
+                border: none;
+                background: radial-gradient(
+                    circle,
+                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.6)) 1px,
+                    transparent 1px
+                );
+                background-size: 4px 4px;
+                position: relative;
+            }
+            hnl-flow-bar-source-accolade.accolade-dotted::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: var(--adjusted-bg-color);
+                box-shadow:
+                    0 0 6px 1px oklch(from var(--background-color) l c h / 0.6),
+                    0 2px 8px 0 oklch(from var(--background-color) l c h / 0.3);
+            }
+            hnl-flow-bar-source-accolade.accolade-dotted:last-child::before {
+                border-radius: 0 var(--border-radius, 8px) 0 0;
+            }
+
+            /* ═══ Accolade variant: Dashed rail ═══ */
+            hnl-flow-bar-source-accolade.accolade-dashed {
+                border: none;
+                border-top: 2px dashed oklch(from var(--background-color) l c h / 0.7);
+                background:
+                    repeating-linear-gradient(
+                        0deg,
+                        oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.3)) 0px,
+                        oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.3)) 2px,
+                        transparent 2px,
+                        transparent 5px
+                    ),
+                    repeating-linear-gradient(
+                        90deg,
+                        oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.3)) 0px,
+                        oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.3)) 2px,
+                        transparent 2px,
+                        transparent 5px
+                    );
+            }
+            hnl-flow-bar-source-accolades > .accolade-dashed:first-child:not(:only-child),
+            hnl-flow-bar-source-accolade.accolade-dashed:nth-child(n+2):not(:last-child) {
+                border-right: 1px dashed oklch(from var(--background-color) l c h / 0.3);
+            }
+
+            /* ═══ Accolade variant: Shadow ═══ */
+            hnl-flow-bar-source-accolade.accolade-shadow {
+                border: none;
+                background: repeating-linear-gradient(
+                    90deg,
+                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.4)) 0px,
+                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.4)) 1px,
+                    transparent 1px,
+                    transparent 6px
+                );
+                box-shadow: inset 0 4px 6px -2px oklch(from var(--background-color) calc(l * 0.5) c h / 0.4);
+            }
+
+            /* ═══ Accolade variant: Double line ═══ */
+            hnl-flow-bar-source-accolade.accolade-double-line {
+                border: none;
+                position: relative;
+                background: repeating-linear-gradient(
+                    -45deg,
+                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.4)) 0px,
+                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.4)) 1px,
+                    transparent 1px,
+                    transparent 5px
+                );
+            }
+            hnl-flow-bar-source-accolade.accolade-double-line::before,
+            hnl-flow-bar-source-accolade.accolade-double-line::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                right: 0;
+                height: 1.5px;
+                background: oklch(from var(--background-color) l c h / 0.7);
+            }
+            hnl-flow-bar-source-accolade.accolade-double-line::before { top: 0; }
+            hnl-flow-bar-source-accolade.accolade-double-line::after { bottom: 0; }
+            hnl-flow-bar-source-accolade.accolade-double-line:last-child::before {
+                border-radius: 0 var(--border-radius, 8px) 0 0;
             }
 
         `;

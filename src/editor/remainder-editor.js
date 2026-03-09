@@ -71,17 +71,6 @@ class RemainderEditor extends LitElement {
               @input=${(ev) => this._valueChanged('color', ev)}
             ></ha-textfield>
 
-            <div class="toggle-row">
-              <span>Hatched background</span>
-              <ha-switch
-                .checked=${this.remainder.hatched ?? false}
-                @change=${(ev) => {
-                  this.remainder = { ...this.remainder, hatched: ev.target.checked };
-                  this._fireChanged();
-                }}
-              ></ha-switch>
-            </div>
-
             <div class="slider-row">
               <label>Background opacity</label>
               <div class="slider-control">

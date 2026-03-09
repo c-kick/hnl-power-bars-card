@@ -122,15 +122,6 @@ class EntityListEditor extends LitElement {
               this._entityFieldChanged(index, 'text_color', ev.target.value)}
           ></ha-textfield>
 
-          <div class="toggle-row">
-            <span>Hatched background</span>
-            <ha-switch
-              .checked=${entity.hatched ?? false}
-              @change=${(ev) =>
-                this._entityFieldChanged(index, 'hatched', ev.target.checked)}
-            ></ha-switch>
-          </div>
-
           <div class="slider-row">
             <label>Background opacity</label>
             <div class="slider-control">
