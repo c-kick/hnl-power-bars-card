@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { computeEntityIcon } from './utils.js';
 import { CARD_VERSION, CARD_NAME, CARD_DESCRIPTION } from './const.js';
+import './editor/hnl-power-bars-card-editor.js';
 
 console.info(
     `%c ${CARD_NAME.toUpperCase()} %c v${CARD_VERSION} `,
@@ -336,6 +337,11 @@ class HnlPowerBarsCard extends LitElement {
         };
     }
 
+
+    //part of HASS card API
+    static getConfigElement() {
+        return document.createElement("hnl-power-bars-card-editor");
+    }
 
     //part of HASS card API
     static getStubConfig() {
