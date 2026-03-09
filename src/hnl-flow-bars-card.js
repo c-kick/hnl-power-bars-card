@@ -82,10 +82,22 @@ class HnlFlowBarsCard extends LitElement {
                 bg_opacity: item.bg_opacity || 'inherit',
                 text_color: item.text_color || 'inherit',
                 unit_of_measurement: item.unit_of_measurement,
+                warning: `${entityId}: entity not found`,
               };
             }
 
-            let value = Math.max(0, parseFloat(stateObj.state) || 0);
+            const raw = stateObj.state;
+            const isUnavailable = raw === 'unavailable' || raw === 'unknown';
+            const parsed = parseFloat(raw);
+            const isNonNumeric = !isUnavailable && isNaN(parsed);
+            let value = Math.max(0, parsed || 0);
+            const displayName = stateObj.attributes.friendly_name ?? entityId;
+            let warning = null;
+            if (isUnavailable) {
+              warning = `${displayName}: ${raw}`;
+            } else if (isNonNumeric) {
+              warning = `${displayName}: non-numeric state "${raw}"`;
+            }
 
             if (this._rawConfig.easing) {
               const prev = this._previousValues[entityId] ?? value;
@@ -97,7 +109,7 @@ class HnlFlowBarsCard extends LitElement {
 
             return {
               entity_id: entityId,
-              name: stateObj.attributes.friendly_name ?? entityId,
+              name: displayName,
               value,
               icon: item.icon || computeEntityIcon(stateObj) || fallbackIcon,
               color: item.color || fallbackVar,
@@ -105,28 +117,33 @@ class HnlFlowBarsCard extends LitElement {
               text_color: item.text_color || 'inherit',
               hatched: item.hatched || false,
               unit_of_measurement: unit,
+              warning,
             };
           });
         };
 
 
+        const production = hydrate(
+            this._rawConfig.production,
+            'mdi:solar-power-variant',
+            'production',
+        );
+        const consumption = hydrate(
+            this._rawConfig.consumption,
+            'mdi:power-plug',
+            'consumption',
+        );
+
         return {
-            production: hydrate(
-                this._rawConfig.production,
-                'mdi:solar-power-variant',
-                'production',
-            ),
-            consumption: hydrate(
-                this._rawConfig.consumption,
-                'mdi:power-plug',
-                'consumption',
-            ),
+            production,
+            consumption,
             consumption_remainder: this._rawConfig.consumption_remainder,
             production_remainder: this._rawConfig.production_remainder,
             rounding: this._rawConfig.rounding,
             hide_zero_values: this._rawConfig.hide_zero_values,
             unit_of_measurement: this._rawConfig.unit_of_measurement,
-            card_class: this._rawConfig.transparent ? 'transparent' : ''
+            card_class: this._rawConfig.transparent ? 'transparent' : '',
+            warnings: [...production, ...consumption].filter((ent) => ent.warning),
         };
     }
 
@@ -268,6 +285,13 @@ class HnlFlowBarsCard extends LitElement {
 
         return html`
             <ha-card class="${this._parsedConfig.card_class}">
+                ${this._parsedConfig.warnings.length ? html`
+                    <div class="card-warnings">
+                        ${this._parsedConfig.warnings.map((ent) => html`
+                            <ha-alert alert-type="warning">${ent.warning}</ha-alert>
+                        `)}
+                    </div>
+                ` : null}
                 <div class="card-content">
         <hnl-flow-bars>
             <hnl-flow-bar-source-group>
