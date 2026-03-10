@@ -2,7 +2,7 @@
 
 A custom Home Assistant Lovelace card that visualizes supply vs demand flows as proportional horizontal bars with accolade connectors.
 
-<img width="517" height="66" alt="image" src="https://github.com/user-attachments/assets/c1421f81-6b61-482d-9745-588a23a45472" />
+<img width="514" height="58" alt="image" src="https://github.com/user-attachments/assets/dde718e3-3ade-4140-9413-dba374cc8b0a" />
 
 Production sources (e.g. solar, battery) are shown on top with slanted labels and bracket connectors. Consumption destinations (e.g. house, EV charger) are shown below. Bar widths scale proportionally, with optional remainder bars showing grid import/export.
 
@@ -60,7 +60,7 @@ Both bars scale proportionally so you can see the balance at a glance.
 ### Example 3 - Small mode
 The card performs very well in small spaces. Here's both current power distribution and daily use in two small cards, 6 columns 1 row each:
 
-<img width="512" height="58" alt="image" src="https://github.com/user-attachments/assets/8430fbe9-8361-49ef-a150-5e52a06769f2" />
+<img width="514" height="58" alt="image" src="https://github.com/user-attachments/assets/8fec86bd-3b9a-4978-9804-46cd82f56997" />
 
 ## Don't we already have the Distribution Card for this?
 
@@ -254,3 +254,4 @@ npm run build  # production build
 ## License
 
 MIT
+
