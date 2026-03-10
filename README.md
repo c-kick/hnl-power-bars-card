@@ -84,8 +84,8 @@ We do, but I found that card falls short when you need insight in one glance. Se
 ## Installation
 
 ### HACS (recommended)
-1. Open HACS → Frontend → three-dot menu → Custom repositories
-2. Add `c-kick/hnl-flow-bars-card` as a **Dashboard** repository
+1. Open HACS → three-dot menu → Custom repositories
+2. Add `c-kick/hnl-flow-bars-card` with category **Dashboard**
 3. Install "HNL Flow Bars Card"
 4. Restart Home Assistant
 
@@ -124,7 +124,7 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `transparent` | bool | `true` | Remove card background |
 | `easing` | bool | `true` | Smooth value transitions over time |
 | `slanted_edge` | bool | `true` | Slant the right edge of source labels |
-| `fill_height` | bool | `false` | Stretch to fill the available card height |
+| `fill_height` | bool | `true` | Stretch to fill the available card height |
 | `show_names` | bool | `true` | Show entity names when the card is tall enough |
 | `accolade_style` | string | `hatched` | Visual theme (see [Themes](#themes) below) |
 | `grid_options` | object | `{}` | Override HA grid sizing (e.g. `{ columns: 6, rows: 2 }`) |
@@ -180,7 +180,7 @@ hide_zero_values: true
 transparent: true
 easing: true
 slanted_edge: true
-fill_height: false
+fill_height: true
 show_names: true
 accolade_style: hatched
 production:
