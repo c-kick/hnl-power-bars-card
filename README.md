@@ -35,13 +35,13 @@ Both bars scale proportionally so you can see the balance at a glance.
 - If something remains: how much flows back to the grid?
 - If we fall short: how much is drawn from the grid?
 
-<img width="430" height="80" alt="image" src="https://github.com/user-attachments/assets/fec15f27-d84c-4d79-a6b2-3f99b3c31113" />
+<img width="474" height="72" src="https://github.com/user-attachments/assets/d836f34a-3950-4c76-8cdc-40e5454569fa" />
 
-<sub>1a: 9W surplus</sub>
+<sub>1a: 527W surplus</sub>
 
-<img width="430" height="80" alt="image" src="https://github.com/user-attachments/assets/874153b7-f3b0-49e4-9c1c-8fd1b7f13709" />
+<img width="471" height="66" alt="image" src="https://github.com/user-attachments/assets/f9f0d65b-bbd4-4dda-861c-60616947e18a" />
 
-<sub>1b: 260W Shortfall</sub>
+<sub>1b: 2386W Shortfall</sub>
 
 ### Example 2 - Total energy flow
 - Show how much solar power was generated today
@@ -203,6 +203,7 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
 
