@@ -169,6 +169,7 @@ The `accolade_style` option controls the visual style of the bracket connectors 
 | `dashed` | Dashed border with cross-hatch fill |
 | `shadow` | Invisible body with inset shadow and vertical lines |
 | `double-line` | Twin parallel lines with sparse diagonal stripes |
+| `native` | Two stacked pill-shaped bars — matches the HA Energy Distribution Card style (no accolade connectors) |
 
 ### YAML Configuration
 
