@@ -57,17 +57,10 @@ Both bars scale proportionally so you can see the balance at a glance.
 
 <sub>2b: 6kWh surplus</sub>
 
-### Example 3 - Gas usage today (sources and destination flipped)
-- How much gas was spent on central heating
-- How much gas was spent on warm water
-- Show how much gas was consumed in total
+### Example 3 - Small mode
+The card performs very well in small spaces. Here's both current power distribution and daily use in two small cards, 6 columns 1 row each:
 
-<img width="430" height="82" alt="image" src="https://github.com/user-attachments/assets/180823a1-7141-470e-a984-9ba6db907d3e" />
-
-Or, smaller, with less decimals and slightly different colors + dotted theme:
-
-<img width="209" height="56" alt="image" src="https://github.com/user-attachments/assets/4c137778-5e72-4090-b4ee-210890fb9a5b" />
-
+<img width="512" height="58" alt="image" src="https://github.com/user-attachments/assets/8430fbe9-8361-49ef-a150-5e52a06769f2" />
 
 ## Don't we already have the Distribution Card for this?
 
@@ -209,6 +202,7 @@ npm run build  # production build
 ## License
 
 MIT
+
 
 
 
