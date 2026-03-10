@@ -15,6 +15,7 @@ class HnlFlowBarsCardEditor extends LitElement {
   setConfig(config) {
     this._config = {
       ...config,
+      theme: config.theme || config.accolade_style || DEFAULT_ACCOLADE_STYLE,
       production: this._normalizeEntities(config.production),
       consumption: this._normalizeEntities(config.consumption),
     };
@@ -32,7 +33,13 @@ class HnlFlowBarsCardEditor extends LitElement {
     const config = { ...this._config };
 
     if (!config.unit_of_measurement) delete config.unit_of_measurement;
-    if (!config.accolade_style || config.accolade_style === DEFAULT_ACCOLADE_STYLE) delete config.accolade_style;
+    // Write as 'theme', remove legacy 'accolade_style'
+    delete config.accolade_style;
+    if (config.theme && config.theme !== DEFAULT_ACCOLADE_STYLE) {
+      // keep it
+    } else {
+      delete config.theme;
+    }
 
     config.production = config.production.filter((e) => e.entity);
     config.consumption = config.consumption.filter((e) => e.entity);
@@ -245,11 +252,11 @@ class HnlFlowBarsCardEditor extends LitElement {
               <span class="toggle-description">Visual style of the brackets and backgrounds</span>
             </div>
             <select
-              .value=${this._config.accolade_style || DEFAULT_ACCOLADE_STYLE}
-              @change=${(ev) => this._textChanged('accolade_style', ev)}
+              .value=${this._config.theme || DEFAULT_ACCOLADE_STYLE}
+              @change=${(ev) => this._textChanged('theme', ev)}
             >
               ${ACCOLADE_STYLES.map((s) => html`
-                <option value="${s.value}" ?selected=${(this._config.accolade_style || DEFAULT_ACCOLADE_STYLE) === s.value}>
+                <option value="${s.value}" ?selected=${(this._config.theme || DEFAULT_ACCOLADE_STYLE) === s.value}>
                   ${s.label}
                 </option>
               `)}

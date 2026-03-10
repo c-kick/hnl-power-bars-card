@@ -126,7 +126,7 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `slanted_edge` | bool | `true` | Slant the right edge of source labels |
 | `fill_height` | bool | `true` | Stretch to fill the available card height |
 | `show_names` | bool | `true` | Show entity names when the card is tall enough |
-| `accolade_style` | string | `hatched` | Visual theme (see [Themes](#themes) below) |
+| `theme` | string | `hatched` | Visual theme (see [Themes](#themes) below). Also accepts `accolade_style` for backward compatibility. |
 | `grid_options` | object | `{}` | Override HA grid sizing (e.g. `{ columns: 6, rows: 2 }`) |
 | `production_remainder` | object | | Config for production remainder bar |
 | `consumption_remainder` | object | | Config for consumption remainder bar |
@@ -183,7 +183,7 @@ easing: true
 slanted_edge: true
 fill_height: true
 show_names: true
-accolade_style: hatched
+theme: hatched
 production:
   - entity: sensor.solar_power
     icon: mdi:solar-power-variant

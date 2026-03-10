@@ -384,7 +384,7 @@ class HnlFlowBarsCard extends LitElement {
                 text_color: config.consumption_remainder?.text_color || TEXT_COLOR_SURPLUS,
                 unit_of_measurement: config.consumption_remainder?.unit_of_measurement || null
             },
-            accolade_style: config.accolade_style || DEFAULT_ACCOLADE_STYLE,
+            accolade_style: config.theme || config.accolade_style || DEFAULT_ACCOLADE_STYLE,
             slanted_edge: config.slanted_edge ?? true,
             fill_height: config.fill_height ?? true,
             show_names: config.show_names ?? true,
