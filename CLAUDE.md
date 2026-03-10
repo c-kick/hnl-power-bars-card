@@ -27,6 +27,7 @@ Custom Home Assistant Lovelace card — supply vs demand flow visualization.
 - **HA card API methods:** `setConfig()`, `getGridOptions()`, `getCardSize()`, `getConfigElement()`, `getStubConfig(hass)`
 - **Terminology:** Sources (supply/production), Destinations (demand/consumption), Shortfall (demand > supply), Surplus (supply > demand)
 - **Layout/CSS changes:** Always use the `frontend-design` plugin for layout and CSS work — it catches specificity conflicts, overflow issues, and grid/flex pitfalls that are easy to miss
+- **Before committing:** Always verify the README is up to date with any feature/config/theme changes
 
 ## Build & dev
 
