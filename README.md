@@ -271,6 +271,19 @@ These defaults are defined in `src/const.js` and can be overridden per entity/re
 
 The card defaults to 12 columns × 1 row in HA section views (`min_columns: 3`, `min_rows: 1`). Override with `grid_options` in the card config, or resize via the HA UI.
 
+## Layouts & Themes
+
+- **Layouts** determine how the elements are structured: `native` or `accolade`.
+- **Themes** determine how colors are applied.
+   - Currently, the `native` layout has themes: `default`, `split-pill`, `minimal` and `contained`
+   - The `accolade` layout only has a `classic` (default) theme.
+
+Below is an overview of the available themes 
+
+<sup>note: this is from v1.3.4 and might not be up to date</sup>
+
+![scrnli_7Vrd7i7N3MKJm4](https://github.com/user-attachments/assets/166aa35d-a495-4d03-844a-21d0aaa63f6b)
+
 ## Development
 
 ```bash
