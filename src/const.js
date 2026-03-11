@@ -2,27 +2,54 @@ export const CARD_VERSION = '1.3.3';
 export const CARD_NAME = 'hnl-flow-bars-card';
 export const CARD_DESCRIPTION = 'A flow bar visualization card for Home Assistant';
 
-// Default colors — aligned with HA Energy Dashboard conventions
-export const COLOR_SOURCE = '#ff9800';           // --energy-solar-color (orange)
-export const COLOR_SHORTFALL = '#488fc2';         // --energy-grid-consumption-color (blue)
-export const COLOR_DESTINATION = '#488fc2';       // --energy-grid-consumption-color (blue)
-export const COLOR_SURPLUS = '#8353d1';           // --energy-grid-return-color (purple)
+// Default fallback colors (used when HA theme vars are unavailable)
+export const FALLBACK_COLOR_PRODUCTION = '#ffd407';
+export const FALLBACK_COLOR_CONSUMPTION = '#8b58bf';
+export const FALLBACK_COLOR_SHORTFALL = '#ce513a';
+export const FALLBACK_COLOR_SURPLUS = '#3c9940';
 
-// Default text colors for remainders
-export const TEXT_COLOR_SHORTFALL = '#fff';
-export const TEXT_COLOR_SURPLUS = '#fff';
+// Layout + theme definitions
+export const DEFAULT_LAYOUT = 'accolade';
 
-// Accolade style variants
+export const LAYOUTS = [
+    {
+        value: 'accolade',
+        label: 'Accolade',
+        description: 'Bracket connectors between source and destination bars',
+        defaultTheme: 'hatched',
+        themes: [
+            { value: 'hatched',     label: 'Hatched',       description: 'Solid fill, hatched remainders' },
+            { value: 'animated',    label: 'Animated',      description: 'Animated diagonal stripes' },
+            { value: 'classic',     label: 'Classic',       description: 'Solid fill with border' },
+            { value: 'gradient',    label: 'Gradient',      description: 'Horizontal gradient from base to darker shade' },
+            { value: 'tapered',     label: 'Tapered wedge', description: 'Narrows toward destination' },
+            { value: 'dotted',      label: 'Dotted',        description: 'Thin glowing line with dot pattern' },
+        ],
+    },
+    {
+        value: 'native',
+        label: 'Native',
+        description: 'Two stacked bar rows (HA distribution card style)',
+        defaultTheme: 'default',
+        themes: [
+            { value: 'default',       label: 'Default',       description: 'Pill-shaped bars' },
+            { value: 'split-corners', label: 'Split corners', description: 'Rounded corners matching HA card radius' },
+            { value: 'gradient',              label: 'Gradient',              description: 'Horizontal gradient from base to darker shade' },
+            { value: 'split-corners-gradient', label: 'Split corners gradient', description: 'Split corners with horizontal gradient' },
+
+        ],
+    },
+];
+
+// Deprecated — kept for backward compatibility, will be removed in a future major version
 export const DEFAULT_ACCOLADE_STYLE = 'hatched';
 export const ACCOLADE_STYLES = [
     { value: 'hatched',     label: 'Hatched',       description: 'Solid fill, hatched remainders' },
     { value: 'animated',    label: 'Animated',      description: 'Animated diagonal stripes' },
     { value: 'classic',     label: 'Classic',       description: 'Solid fill with border' },
-    { value: 'gradient',    label: 'Gradient fade', description: 'Fades from source color downward' },
+    { value: 'gradient',    label: 'Gradient',      description: 'Horizontal gradient from base to darker shade' },
     { value: 'tapered',     label: 'Tapered wedge', description: 'Narrows toward destination' },
     { value: 'dotted',      label: 'Dotted',        description: 'Thin glowing line with dot pattern' },
-    { value: 'dashed',      label: 'Dashed rail',   description: 'Dashed border, cross-hatch fill' },
-    { value: 'shadow',      label: 'Shadow',        description: 'Invisible body, shadow only' },
-    { value: 'double-line', label: 'Double line',   description: 'Twin lines, sparse stripes' },
     { value: 'native',      label: 'Native',        description: 'Matches HA distribution card style' },
+    { value: 'native-alt',  label: 'Native alt',    description: 'Native with split corners' },
 ];

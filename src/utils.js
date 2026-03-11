@@ -1,3 +1,39 @@
+import { LAYOUTS, DEFAULT_LAYOUT } from './const.js';
+
+/**
+ * Resolves legacy `theme` / `accolade_style` config into separate `layout` + `theme` values.
+ * Shared by the card and the editor so migration logic lives in one place.
+ */
+export function resolveLayoutAndTheme(config) {
+    const legacy = config.theme || config.accolade_style;
+
+    // New-style: explicit layout already set
+    if (config.layout) {
+        const layoutObj = LAYOUTS.find(l => l.value === config.layout) || LAYOUTS[0];
+        const validThemes = layoutObj.themes.map(t => t.value);
+        const theme = validThemes.includes(config.theme) ? config.theme : layoutObj.defaultTheme;
+        return { layout: layoutObj.value, theme };
+    }
+
+    // Legacy single-value migration
+    const LEGACY_MAP = {
+        'native':     { layout: 'native', theme: 'default' },
+        'native-alt': { layout: 'native', theme: 'split-corners' },
+    };
+
+    if (legacy && LEGACY_MAP[legacy]) {
+        return LEGACY_MAP[legacy];
+    }
+
+    // Default: accolade layout, validate theme against its theme list
+    const accoladeLayout = LAYOUTS[0];
+    const validThemes = accoladeLayout.themes.map(t => t.value);
+    return {
+        layout: 'accolade',
+        theme: validThemes.includes(legacy) ? legacy : accoladeLayout.defaultTheme,
+    };
+}
+
 /**
  * Resolves an icon for a given Home Assistant state object.
  *

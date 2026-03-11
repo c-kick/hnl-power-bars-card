@@ -1,5 +1,10 @@
 import { LitElement, html, css, unsafeCSS } from 'lit';
-import { COLOR_SOURCE, COLOR_SHORTFALL, COLOR_DESTINATION, COLOR_SURPLUS, ACCOLADE_STYLES, DEFAULT_ACCOLADE_STYLE } from '../const.js';
+import {
+    FALLBACK_COLOR_PRODUCTION, FALLBACK_COLOR_CONSUMPTION,
+    FALLBACK_COLOR_SHORTFALL, FALLBACK_COLOR_SURPLUS,
+    LAYOUTS, DEFAULT_LAYOUT,
+} from '../const.js';
+import { resolveLayoutAndTheme } from '../utils.js';
 import './entity-list-editor.js';
 import './remainder-editor.js';
 
@@ -13,9 +18,11 @@ class HnlFlowBarsCardEditor extends LitElement {
   }
 
   setConfig(config) {
+    const { layout, theme } = resolveLayoutAndTheme(config);
     this._config = {
       ...config,
-      theme: config.theme || config.accolade_style || DEFAULT_ACCOLADE_STYLE,
+      layout,
+      theme,
       production: this._normalizeEntities(config.production),
       consumption: this._normalizeEntities(config.consumption),
     };
@@ -33,13 +40,12 @@ class HnlFlowBarsCardEditor extends LitElement {
     const config = { ...this._config };
 
     if (!config.unit_of_measurement) delete config.unit_of_measurement;
-    // Write as 'theme', remove legacy 'accolade_style'
+    // Remove legacy key
     delete config.accolade_style;
-    if (config.theme && config.theme !== DEFAULT_ACCOLADE_STYLE) {
-      // keep it
-    } else {
-      delete config.theme;
-    }
+    // Omit defaults to keep YAML clean
+    const layoutObj = LAYOUTS.find(l => l.value === config.layout) || LAYOUTS[0];
+    if (config.layout === DEFAULT_LAYOUT) delete config.layout;
+    if (config.theme === layoutObj.defaultTheme) delete config.theme;
 
     config.production = config.production.filter((e) => e.entity);
     config.consumption = config.consumption.filter((e) => e.entity);
@@ -87,6 +93,17 @@ class HnlFlowBarsCardEditor extends LitElement {
   _numberChanged(field, ev) {
     const val = parseInt(ev.target.value, 10);
     this._config = { ...this._config, [field]: isNaN(val) ? 0 : val };
+    this._fireConfigChanged();
+  }
+
+  _layoutChanged(ev) {
+    const newLayout = ev.target.value;
+    const layoutObj = LAYOUTS.find(l => l.value === newLayout) || LAYOUTS[0];
+    this._config = {
+      ...this._config,
+      layout: newLayout,
+      theme: layoutObj.defaultTheme,
+    };
     this._fireConfigChanged();
   }
 
@@ -213,6 +230,7 @@ class HnlFlowBarsCardEditor extends LitElement {
             ></ha-switch>
           </div>
 
+          ${this._config.layout !== 'native' ? html`
           <div class="toggle-row">
             <div class="toggle-label">
               <span>Slanted edge</span>
@@ -221,6 +239,18 @@ class HnlFlowBarsCardEditor extends LitElement {
             <ha-switch
               .checked=${this._config.slanted_edge ?? true}
               @change=${(ev) => this._toggleChanged('slanted_edge', ev)}
+            ></ha-switch>
+          </div>
+          ` : null}
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Borders</span>
+              <span class="toggle-description">Show inset borders on bars</span>
+            </div>
+            <ha-switch
+              .checked=${this._config.borders ?? (this._config.layout === 'native')}
+              @change=${(ev) => this._toggleChanged('borders', ev)}
             ></ha-switch>
           </div>
 
@@ -248,20 +278,39 @@ class HnlFlowBarsCardEditor extends LitElement {
 
           <div class="select-row">
             <div class="select-label">
-              <span>Theme</span>
-              <span class="toggle-description">Visual style of the brackets and backgrounds</span>
+              <span>Layout</span>
+              <span class="toggle-description">Bar structure and geometry</span>
             </div>
             <select
-              .value=${this._config.theme || DEFAULT_ACCOLADE_STYLE}
-              @change=${(ev) => this._textChanged('theme', ev)}
+              .value=${this._config.layout || DEFAULT_LAYOUT}
+              @change=${this._layoutChanged}
             >
-              ${ACCOLADE_STYLES.map((s) => html`
-                <option value="${s.value}" ?selected=${(this._config.theme || DEFAULT_ACCOLADE_STYLE) === s.value}>
-                  ${s.label}
+              ${LAYOUTS.map((l) => html`
+                <option value="${l.value}" ?selected=${(this._config.layout || DEFAULT_LAYOUT) === l.value}>
+                  ${l.label}
                 </option>
               `)}
             </select>
           </div>
+
+          ${(LAYOUTS.find(l => l.value === this._config.layout) || LAYOUTS[0]).themes.length > 1 ? html`
+          <div class="select-row">
+            <div class="select-label">
+              <span>Theme</span>
+              <span class="toggle-description">Visual style of connectors and fills</span>
+            </div>
+            <select
+              .value=${this._config.theme}
+              @change=${(ev) => this._textChanged('theme', ev)}
+            >
+              ${(LAYOUTS.find(l => l.value === this._config.layout) || LAYOUTS[0]).themes.map((t) => html`
+                <option value="${t.value}" ?selected=${this._config.theme === t.value}>
+                  ${t.label}
+                </option>
+              `)}
+            </select>
+          </div>
+          ` : null}
         </div>
 
         <div class="divider"></div>
@@ -483,7 +532,7 @@ class HnlFlowBarsCardEditor extends LitElement {
 
       .source-fill {
         flex: 3 0 0;
-        background: ${unsafeCSS(COLOR_SOURCE)};
+        background: ${unsafeCSS(FALLBACK_COLOR_PRODUCTION)};
         opacity: 0.75;
       }
 
@@ -491,8 +540,8 @@ class HnlFlowBarsCardEditor extends LitElement {
         flex: 1 0 0;
         background: repeating-linear-gradient(
           -45deg,
-          ${unsafeCSS(COLOR_SHORTFALL)} 0px,
-          ${unsafeCSS(COLOR_SHORTFALL)} 3px,
+          ${unsafeCSS(FALLBACK_COLOR_SHORTFALL)} 0px,
+          ${unsafeCSS(FALLBACK_COLOR_SHORTFALL)} 3px,
           transparent 3px,
           transparent 6px
         );
@@ -502,7 +551,7 @@ class HnlFlowBarsCardEditor extends LitElement {
 
       .destination-fill {
         flex: 3 0 0;
-        background: ${unsafeCSS(COLOR_DESTINATION)};
+        background: ${unsafeCSS(FALLBACK_COLOR_CONSUMPTION)};
         opacity: 0.75;
       }
 
@@ -510,8 +559,8 @@ class HnlFlowBarsCardEditor extends LitElement {
         flex: 1 0 0;
         background: repeating-linear-gradient(
           -45deg,
-          ${unsafeCSS(COLOR_SURPLUS)} 0px,
-          ${unsafeCSS(COLOR_SURPLUS)} 3px,
+          ${unsafeCSS(FALLBACK_COLOR_SURPLUS)} 0px,
+          ${unsafeCSS(FALLBACK_COLOR_SURPLUS)} 3px,
           transparent 3px,
           transparent 6px
         );
@@ -541,12 +590,12 @@ class HnlFlowBarsCardEditor extends LitElement {
       }
 
       .shortfall-swatch {
-        background: ${unsafeCSS(COLOR_SHORTFALL)};
+        background: ${unsafeCSS(FALLBACK_COLOR_SHORTFALL)};
         opacity: 0.7;
       }
 
       .surplus-swatch {
-        background: ${unsafeCSS(COLOR_SURPLUS)};
+        background: ${unsafeCSS(FALLBACK_COLOR_SURPLUS)};
         opacity: 0.7;
       }
     `;
