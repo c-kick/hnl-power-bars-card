@@ -18,11 +18,14 @@ class HnlFlowBarsCardEditor extends LitElement {
   }
 
   setConfig(config) {
-    const { layout, theme } = resolveLayoutAndTheme(config);
+    const { layout, theme, gradient, hatched, animated } = resolveLayoutAndTheme(config);
     this._config = {
       ...config,
       layout,
       theme,
+      gradient,
+      hatched,
+      animated,
       production: this._normalizeEntities(config.production),
       consumption: this._normalizeEntities(config.consumption),
     };
@@ -256,12 +259,34 @@ class HnlFlowBarsCardEditor extends LitElement {
 
           <div class="toggle-row">
             <div class="toggle-label">
-              <span>Fill height</span>
-              <span class="toggle-description">Stretch to fill the available card height</span>
+              <span>Gradient</span>
+              <span class="toggle-description">Horizontal gradient from base to darker shade</span>
             </div>
             <ha-switch
-              .checked=${this._config.fill_height ?? false}
-              @change=${(ev) => this._toggleChanged('fill_height', ev)}
+              .checked=${this._config.gradient ?? false}
+              @change=${(ev) => this._toggleChanged('gradient', ev)}
+            ></ha-switch>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Hatched</span>
+              <span class="toggle-description">Hatched background pattern on surplus and shortfall</span>
+            </div>
+            <ha-switch
+              .checked=${this._config.hatched ?? false}
+              @change=${(ev) => this._toggleChanged('hatched', ev)}
+            ></ha-switch>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Animated</span>
+              <span class="toggle-description">Animates animatable components, such as background patterns</span>
+            </div>
+            <ha-switch
+              .checked=${this._config.animated ?? false}
+              @change=${(ev) => this._toggleChanged('animated', ev)}
             ></ha-switch>
           </div>
 

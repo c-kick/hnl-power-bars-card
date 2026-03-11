@@ -16,14 +16,9 @@ export const LAYOUTS = [
         value: 'accolade',
         label: 'Accolade',
         description: 'Bracket connectors between source and destination bars',
-        defaultTheme: 'hatched',
+        defaultTheme: 'classic',
         themes: [
-            { value: 'hatched',     label: 'Hatched',       description: 'Solid fill, hatched remainders' },
-            { value: 'animated',    label: 'Animated',      description: 'Animated diagonal stripes' },
             { value: 'classic',     label: 'Classic',       description: 'Solid fill with border' },
-            { value: 'gradient',    label: 'Gradient',      description: 'Horizontal gradient from base to darker shade' },
-            { value: 'tapered',     label: 'Tapered wedge', description: 'Narrows toward destination' },
-            { value: 'dotted',      label: 'Dotted',        description: 'Thin glowing line with dot pattern' },
         ],
     },
     {
@@ -33,23 +28,17 @@ export const LAYOUTS = [
         defaultTheme: 'default',
         themes: [
             { value: 'default',       label: 'Default',       description: 'Pill-shaped bars' },
-            { value: 'split-corners', label: 'Split corners', description: 'Rounded corners matching HA card radius' },
-            { value: 'gradient',              label: 'Gradient',              description: 'Horizontal gradient from base to darker shade' },
-            { value: 'split-corners-gradient', label: 'Split corners gradient', description: 'Split corners with horizontal gradient' },
+            { value: 'split-pill', label: 'Split pill', description: 'Rounded corners matching HA card radius' },
             { value: 'minimal',     label: 'Minimal',       description: 'Minimalistic' },
+            { value: 'contained',  label: 'Contained',     description: 'Destinations contained within sources' },
         ],
     },
 ];
 
 // Deprecated — kept for backward compatibility, will be removed in a future major version
-export const DEFAULT_ACCOLADE_STYLE = 'hatched';
+export const DEFAULT_ACCOLADE_STYLE = 'classic';
 export const ACCOLADE_STYLES = [
-    { value: 'hatched',     label: 'Hatched',       description: 'Solid fill, hatched remainders' },
-    { value: 'animated',    label: 'Animated',      description: 'Animated diagonal stripes' },
     { value: 'classic',     label: 'Classic',       description: 'Solid fill with border' },
-    { value: 'gradient',    label: 'Gradient',      description: 'Horizontal gradient from base to darker shade' },
-    { value: 'tapered',     label: 'Tapered wedge', description: 'Narrows toward destination' },
-    { value: 'dotted',      label: 'Dotted',        description: 'Thin glowing line with dot pattern' },
     { value: 'native',      label: 'Native',        description: 'Matches HA distribution card style' },
     { value: 'native-alt',  label: 'Native alt',    description: 'Native with split corners' },
 ];

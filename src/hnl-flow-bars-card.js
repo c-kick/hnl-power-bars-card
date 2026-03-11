@@ -150,7 +150,10 @@ class HnlFlowBarsCard extends LitElement {
             rounding: this._rawConfig.rounding,
             hide_zero_values: this._rawConfig.hide_zero_values,
             unit_of_measurement: this._rawConfig.unit_of_measurement,
-            card_class: this._rawConfig.transparent ? 'transparent' : '',
+            card_class: [
+                this._rawConfig.transparent ? 'transparent' : '',
+                this._rawConfig.theme === 'minimal' ? 'minimal' : '',
+            ].filter(Boolean).join(' '),
             warnings: [...production, ...consumption].filter((ent) => ent.warning),
         };
     }
@@ -190,34 +193,31 @@ class HnlFlowBarsCard extends LitElement {
 
         // Layout
         if (layout === 'native') classes.push('native');
-        if (theme === 'split-corners' || theme === 'split-corners-gradient') classes.push('alternative');
-        if (theme === 'gradient' || theme === 'split-corners-gradient') classes.push('gradient');
+        if (theme === 'split-pill') classes.push('alternative');
+        if (this._rawConfig.gradient) classes.push('gradient');
 
         // Layout modifiers
         if (!this._rawConfig.slanted_edge) classes.push('no-slant');
         if (!this._rawConfig.borders) classes.push('no-borders');
-        if (this._rawConfig.fill_height) classes.push('fill-height');
+
         if (!this._rawConfig.show_names) classes.push('hide-names');
 
         // Theme
-        if (theme === 'animated') classes.push('animated');
+        if (theme === 'minimal') classes.push('minimal');
+        if (theme === 'contained') classes.push('contained');
+
+        // Toggles
+        if (this._rawConfig.animated) classes.push('animated');
+        if (this._rawConfig.hatched) classes.push('hatched');
 
         return classes.join(' ');
     }
 
     _getAccoladeClasses(isRemainder = false) {
-        const { theme } = this._rawConfig;
-        const classes = [];
-
-        if (!['classic', 'hatched', 'animated', 'gradient'].includes(theme)) {
-            classes.push(`accolade-${theme}`);
+        if (isRemainder && this._rawConfig.hatched) {
+            return 'hatched';
         }
-
-        if (isRemainder && (theme === 'hatched' || theme === 'animated')) {
-            classes.push('hatched');
-        }
-
-        return classes.join(' ');
+        return '';
     }
 
     _renderSourceLabel(ent) {
@@ -243,8 +243,7 @@ class HnlFlowBarsCard extends LitElement {
     _renderRemainder(type, remainderValue) {
         const cfg = this._parsedConfig[`${type}_remainder`];
         const unit = cfg.unit_of_measurement || this._parsedConfig.unit_of_measurement || '';
-        const { theme } = this._rawConfig;
-        const hatchedClass = (theme === 'hatched' || theme === 'animated') ? 'hatched' : '';
+        const hatchedClass = this._rawConfig.hatched ? 'hatched' : '';
         if (type === 'production') {
             return html`<hnl-flow-bar-source-label title="${cfg.name}: ${remainderValue} ${unit}" style="--background-color:${cfg.color};--text-color:${cfg.text_color};--source-bg-opacity:${cfg.bg_opacity};"><span>
                 <span class="source-value"><ha-icon icon="${cfg.icon}"></ha-icon>
@@ -413,7 +412,7 @@ class HnlFlowBarsCard extends LitElement {
             ...resolved,
             slanted_edge: config.slanted_edge ?? true,
             borders: config.borders ?? (resolved.layout === 'native'),
-            fill_height: config.fill_height ?? true,
+
             show_names: config.show_names ?? true,
             easing: config.easing ?? true,
             hide_zero_values: config.hide_zero_values ?? true,
@@ -539,13 +538,21 @@ class HnlFlowBarsCard extends LitElement {
                 display: block;
                 height: 100%;
                 overflow: hidden;
+            }
+			ha-card hnl-flow-bars {
                 container-type: size;
                 container-name: card;
-            }
+			}
             ha-card.transparent {
                 background: none;
                 border: none;
                 box-shadow: none;
+            }
+            ha-card.transparent > .card-content {
+				padding: 0;
+			}
+            ha-card.transparent {
+				border-radius: 0;
             }
 
             .card-content {
@@ -559,18 +566,14 @@ class HnlFlowBarsCard extends LitElement {
                 overflow: hidden;
                 padding: 8px;
             }
-            ha-card.transparent:not(.minimal) .card-content {
-                padding: 0;
-            }
 
 
             /* ═══ LAYOUT: Accolade (default) ═══ */
             hnl-flow-bars {
                 display: grid;
-                align-self: center;
+                align-self: stretch;
                 flex-basis: 100%;
                 justify-items: stretch;
-				align-self: stretch;
                 gap: 0;
                 grid-template-rows: 1fr var(--accolade-height, 5px) 1fr;
                 border-radius: var(--border-radius, 8px);
@@ -620,7 +623,7 @@ class HnlFlowBarsCard extends LitElement {
                 display: flex;
                 flex: var(--bar-grow, 0) 1 var(--bar-width, 0);
                 transition: flex-basis 0.3s ease;
-				font-size: max(23cqb, var(--card-primary-font-size, 10px));
+				font-size: clamp(var(--ha-font-size-xs, 9px), 22cqb, 14px);
                 --mdc-icon-size: min(1.25em, 1.2em);
                 --label-padding: 0.15em 0.5em;
                 --label-edge-padding: 0.7em;
@@ -845,54 +848,11 @@ class HnlFlowBarsCard extends LitElement {
                 );
             }
 
-            /* ═══ THEME: Tapered wedge ═══ */
-            hnl-flow-bar-source-accolade.accolade-tapered {
-                border: none;
-                border-top: var(--accolade-border-width, 2px) solid var(--adjusted-bg-color);
-                clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 4px 100%);
-            }
-            hnl-flow-bar-source-accolade.accolade-tapered:first-child {
-                clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
-            }
-            hnl-flow-bar-source-accolade.accolade-tapered:last-child {
-                clip-path: polygon(0 0, 100% 0, 100% 100%, 4px 100%);
-            }
-            hnl-flow-bar-source-accolade.accolade-tapered:only-child {
-                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-            }
-
-            /* ═══ THEME: Dotted ═══ */
-            hnl-flow-bar-source-accolade.accolade-dotted {
-                border: none;
-                background: radial-gradient(
-                    circle,
-                    oklch(from var(--background-color) l c h / calc(var(--accolade-bg-opacity) * 0.6)) 1px,
-                    transparent 1px
-                );
-                background-size: 4px 4px;
-                position: relative;
-            }
-            hnl-flow-bar-source-accolade.accolade-dotted::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 2px;
-                background: var(--adjusted-bg-color);
-                box-shadow:
-                    0 0 6px 1px oklch(from var(--background-color) l c h / 0.6),
-                    0 2px 8px 0 oklch(from var(--background-color) l c h / 0.3);
-            }
-            hnl-flow-bar-source-accolade.accolade-dotted:last-child::before {
-                border-radius: 0 var(--border-radius, 8px) 0 0;
-            }
-
             /* ═══ LAYOUT: Native ═══ */
             hnl-flow-bars.native {
                 grid-template-rows: 1fr 1fr;
                 gap: 6px;
-                padding: calc(var(--ha-card-border-radius) * .1);
+                padding: 0;
                 border-radius: 0;
             }
 			hnl-flow-bars.native.alternative {
@@ -958,7 +918,7 @@ class HnlFlowBarsCard extends LitElement {
                 border-radius: 0;
             }
             hnl-flow-bars.native hnl-flow-bar-destination:first-child {
-                border-radius: 9999pD:\_projects\_prive projectenx 0 0 9999px;
+                border-radius: 9999px 0 0 9999px;
             }
             hnl-flow-bars.native hnl-flow-bar-destination:last-child {
                 border-radius: 0 9999px 9999px 0;
@@ -968,7 +928,9 @@ class HnlFlowBarsCard extends LitElement {
             }
 			
 			/* ═══ NATIVE THEME: Split corners ═══ */
-			
+			hnl-flow-bars.native.alternative {
+				--ha-card-border-radius: 3cqi;
+			}
             hnl-flow-bars.native.alternative hnl-flow-bar-source-label:first-child {
                 border-radius: var(--ha-card-border-radius,var(--ha-border-radius-lg)) 0 0 0;
             }
@@ -1005,6 +967,9 @@ class HnlFlowBarsCard extends LitElement {
             }
 			
             /* ═══ NATIVE THEME: Minimal ═══ */
+			hnl-flow-bars.native.minimal {
+                gap: 2px;
+			}
 			hnl-flow-bars.native.minimal hnl-flow-bar-destination {
 				box-shadow: inset 0 1px 0 1px var(--background-color);
 				border-radius: 0 !important;
@@ -1013,13 +978,43 @@ class HnlFlowBarsCard extends LitElement {
 				box-shadow: inset 0 -1px 0 1px var(--background-color);
 				border-radius: 0 !important;
 			}
-
+			
+            /* ═══ NATIVE THEME: Contained ═══ */
+			hnl-flow-bars.native.contained hnl-flow-bar-source-group {
+				grid-row: 1 / -1;
+			}
+			hnl-flow-bars.native.contained hnl-flow-bar-destination-group {
+				padding: min(1cqi, 4cqb);
+				height: 50cqb;
+			}
+			hnl-flow-bars.native.contained hnl-flow-bar-source-label > span {
+				height: 50cqb;
+			}
+			hnl-flow-bars.native.contained hnl-flow-bar-source-label:first-child {
+				border-radius: 15cqb 0 0 15cqb;
+			}
+			hnl-flow-bars.native.contained hnl-flow-bar-source-label:last-child {
+				border-radius: 0 15cqb 15cqb 0;
+			}
+			hnl-flow-bars.native.contained hnl-flow-bar-source-label:only-child {
+				border-radius: 15cqb;
+			}
+			hnl-flow-bars.native.contained hnl-flow-bar-destination:first-child {
+				border-radius: 3cqi 0 0 3cqi;
+			}
+			hnl-flow-bars.native.contained hnl-flow-bar-destination:last-child {
+				border-radius: 0 3cqi 3cqi 0;
+			}
+			hnl-flow-bars.native.contained hnl-flow-bar-destination:only-child {
+				border-radius: 3cqi;
+			}
+			
             /* ═══ LAYOUT MODIFIER: No borders ═══ */
             hnl-flow-bars.no-borders hnl-flow-bar-source-label,
             hnl-flow-bars.no-borders hnl-flow-bar-destination {
                 box-shadow: none;
             }
-
+			
             /* ═══ LAYOUT MODIFIER: No slanted edge ═══ */
             hnl-flow-bars.no-slant hnl-flow-bar-source-label {
                 --slanted-edge: 0px;
@@ -1029,15 +1024,12 @@ class HnlFlowBarsCard extends LitElement {
                 clip-path: none;
                 border-top-right-radius: var(--border-radius, 8px);
             }
-
-            /* ═══ LAYOUT MODIFIER: Fill height ═══ */
-            hnl-flow-bars.fill-height {
-                align-self: stretch;
-            }
-            hnl-flow-bars.fill-height hnl-flow-bar-source-label {
+			
+            /* ═══ LAYOUT MODIFIER: Fill height (always on) ═══ */
+            hnl-flow-bar-source-label {
                 height: 100%;
             }
-            hnl-flow-bars.fill-height hnl-flow-bar-source-label > span {
+            hnl-flow-bar-source-label > span {
                 align-self: stretch;
                 justify-content: center;
             }

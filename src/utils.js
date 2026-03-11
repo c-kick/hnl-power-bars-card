@@ -11,26 +11,69 @@ export function resolveLayoutAndTheme(config) {
     if (config.layout) {
         const layoutObj = LAYOUTS.find(l => l.value === config.layout) || LAYOUTS[0];
         const validThemes = layoutObj.themes.map(t => t.value);
-        const theme = validThemes.includes(config.theme) ? config.theme : layoutObj.defaultTheme;
-        return { layout: layoutObj.value, theme };
+        let theme = config.theme;
+        let gradient = config.gradient ?? false;
+        let hatched = config.hatched ?? false;
+        let animated = config.animated ?? false;
+
+        // Migrate themes that are now toggles
+        if (theme === 'gradient') {
+            theme = layoutObj.defaultTheme;
+            gradient = true;
+        } else if (theme === 'split-corners-gradient') {
+            theme = 'split-pill';
+            gradient = true;
+        } else if (theme === 'split-corners') {
+            theme = 'split-pill';
+        } else if (theme === 'hatched') {
+            theme = layoutObj.defaultTheme;
+            hatched = true;
+        } else if (theme === 'animated') {
+            theme = layoutObj.defaultTheme;
+            animated = true;
+        }
+
+        theme = validThemes.includes(theme) ? theme : layoutObj.defaultTheme;
+        return { layout: layoutObj.value, theme, gradient, hatched, animated };
     }
 
     // Legacy single-value migration
     const LEGACY_MAP = {
         'native':     { layout: 'native', theme: 'default' },
-        'native-alt': { layout: 'native', theme: 'split-corners' },
+        'native-alt': { layout: 'native', theme: 'split-pill' },
+    };
+
+    const toggles = {
+        gradient: config.gradient ?? false,
+        hatched: config.hatched ?? false,
+        animated: config.animated ?? false,
     };
 
     if (legacy && LEGACY_MAP[legacy]) {
-        return LEGACY_MAP[legacy];
+        return { ...LEGACY_MAP[legacy], ...toggles };
     }
 
     // Default: accolade layout, validate theme against its theme list
     const accoladeLayout = LAYOUTS[0];
     const validThemes = accoladeLayout.themes.map(t => t.value);
+    let theme = legacy;
+
+    // Migrate legacy themes that are now toggles
+    if (theme === 'gradient') {
+        theme = accoladeLayout.defaultTheme;
+        toggles.gradient = true;
+    } else if (theme === 'hatched') {
+        theme = accoladeLayout.defaultTheme;
+        toggles.hatched = true;
+    } else if (theme === 'animated') {
+        theme = accoladeLayout.defaultTheme;
+        toggles.animated = true;
+    }
+
     return {
         layout: 'accolade',
-        theme: validThemes.includes(legacy) ? legacy : accoladeLayout.defaultTheme,
+        theme: validThemes.includes(theme) ? theme : accoladeLayout.defaultTheme,
+        ...toggles,
     };
 }
 
