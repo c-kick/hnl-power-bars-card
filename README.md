@@ -128,9 +128,13 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `transparent` | bool | `true` | Remove card background |
 | `easing` | bool | `true` | Smooth value transitions over time |
 | `slanted_edge` | bool | `true` | Slant the right edge of source labels |
-| `fill_height` | bool | `true` | Stretch to fill the available card height |
 | `show_names` | bool | `true` | Show entity names when the card is tall enough |
-| `theme` | string | `hatched` | Visual theme (see [Themes](#themes) below). Also accepts `accolade_style` for backward compatibility. |
+| `layout` | string | `accolade` | Layout structure: `accolade` or `native` (see [Layouts & Themes](#layouts--themes)) |
+| `theme` | string | layout default | Visual theme within the chosen layout (see [Layouts & Themes](#layouts--themes)) |
+| `gradient` | bool | `false` | Apply gradient shading to bars |
+| `hatched` | bool | `false` | Apply diagonal stripe pattern to remainder bars (shortfall/surplus) |
+| `animated` | bool | `false` | Animate background patterns (e.g. hatched stripes) |
+| `borders` | bool | layout default | Show bar outlines (default: on for native, off for accolade) |
 | `grid_options` | object | `{}` | Override HA grid sizing (e.g. `{ columns: 6, rows: 2 }`) |
 | `production_remainder` | object | | Config for production remainder bar |
 | `consumption_remainder` | object | | Config for consumption remainder bar |
@@ -158,23 +162,6 @@ The card is equipped with a visual editor, with which you can adjust all setting
 | `text_color` | string | theme variable | Text color |
 | `unit_of_measurement` | string | from entity | Unit override |
 
-### Themes
-
-The `theme` option controls the visual style of the bracket connectors and background patterns. Available themes:
-
-| Value | Description |
-|---|---|
-| `hatched` | **(default)** Solid fill with hatched pattern on remainder bars |
-| `animated` | Animated diagonal stripes on remainder bars (shortfall scrolls left, surplus scrolls right) |
-| `classic` | Solid fill with border, no hatching |
-| `gradient` | Fades from source color downward |
-| `tapered` | Narrows toward destination (Sankey-diagram feel) |
-| `dotted` | Thin glowing line with dot-grid background |
-| `dashed` | Dashed border with cross-hatch fill |
-| `shadow` | Invisible body with inset shadow and vertical lines |
-| `double-line` | Twin parallel lines with sparse diagonal stripes |
-| `native` | Two stacked pill-shaped bars — matches the HA Energy Distribution Card style (no accolade connectors) |
-
 ### YAML Configuration
 
 ```yaml
@@ -185,9 +172,12 @@ hide_zero_values: true
 transparent: true
 easing: true
 slanted_edge: true
-fill_height: true
 show_names: true
-theme: hatched
+layout: accolade
+theme: classic
+gradient: false
+hatched: true
+animated: false
 production:
   - entity: sensor.solar_power
     icon: mdi:solar-power-variant
@@ -215,7 +205,7 @@ consumption_remainder:
 The card adapts to its available height:
 
 - **Compact (1 row):** Only icon + value shown in source labels and destinations.
-- **Taller layouts (2+ rows, or `fill_height: true`):** Entity names automatically appear below the value in both source labels and destination bars when there is enough vertical space. The threshold is content-relative (based on `em` units, not fixed pixels), so it scales with font size.
+- **Taller layouts (2+ rows):** Entity names automatically appear below the value in both source labels and destination bars when there is enough vertical space. Bars always stretch to fill the available card height. The threshold is content-relative (based on `em` units, not fixed pixels), so it scales with font size.
 - **`show_names: false`:** Disables entity names entirely, regardless of available space.
 
 ### Entity warnings
@@ -236,24 +226,24 @@ The visual editor includes:
 
 ## Default colors
 
-The card's default colors follow the Home Assistant Energy Dashboard conventions:
+The card uses the following default colors:
 
-| Bar type | Default color | HA variable | Notes |
-|---|---|---|---|
-| **Sources** | `#ff9800` (orange) | `--energy-solar-color` | Production/supply entities |
-| **Destinations** | `#488fc2` (blue) | `--energy-grid-consumption-color` | Consumption/demand entities |
-| **Shortfall** | `#488fc2` (blue) | `--energy-grid-consumption-color` | Demand that sources couldn't cover |
-| **Surplus** | `#8353d1` (purple) | `--energy-grid-return-color` | Supply that destinations didn't use |
+| Bar type | Default color | Notes |
+|---|---|---|
+| **Sources** | `#ffd407` (yellow) | Production/supply entities |
+| **Destinations** | `#8b58bf` (purple) | Consumption/demand entities |
+| **Shortfall** | `#ce513a` (red) | Demand that sources couldn't cover |
+| **Surplus** | `#3c9940` (green) | Supply that destinations didn't use |
 
-Destinations and shortfall share the same blue because both represent consumption from the grid's perspective — shortfall is the portion of demand that had to be imported. With the default `hatched` theme, remainder bars get a diagonal stripe pattern to visually distinguish them from regular bars.
+Enable the `hatched` toggle to give remainder bars a diagonal stripe pattern, visually distinguishing them from regular bars.
 
 These defaults are defined in `src/const.js` and can be overridden per entity/remainder in the card config. The card also exposes CSS custom properties for theme-level overrides:
 
 ```css
 :host {
   /* Base source/destination colors */
-  --hnl-flow-bars-color-production: #ff9800;
-  --hnl-flow-bars-color-consumption: #488fc2;
+  --hnl-flow-bars-color-production: #ffd407;
+  --hnl-flow-bars-color-consumption: #8b58bf;
 
   /* Auto-generated palette variants (0–4 per side, shifted in hue/lightness) */
   --hnl-flow-bars-color-production-0: /* base */;
@@ -263,11 +253,9 @@ These defaults are defined in `src/const.js` and can be overridden per entity/re
   --hnl-flow-bars-color-production-4: /* lighter, wider hue shift */;
   /* Same pattern for consumption-0 through consumption-4 */
 
-  /* Remainder colors and text */
-  --hnl-flow-bars-color-production-remainder: #488fc2;
-  --hnl-flow-bars-text-color-production-remainder: #fff;
-  --hnl-flow-bars-color-consumption-remainder: #8353d1;
-  --hnl-flow-bars-text-color-consumption-remainder: #fff;
+  /* Remainder colors */
+  --hnl-flow-bars-color-shortfall: #ce513a;
+  --hnl-flow-bars-color-surplus: #3c9940;
 }
 ```
 
@@ -277,10 +265,14 @@ The card defaults to 12 columns × 1 row in HA section views (`min_columns: 3`, 
 
 ## Layouts & Themes
 
-- **Layouts** determine how the elements are structured: `native` or `accolade`.
-- **Themes** determine how colors are applied.
-   - Currently, the `native` layout has themes: `default`, `split-pill`, `minimal` and `contained`
-   - The `accolade` layout only has a `classic` (default) theme.
+- **Layouts** determine how the elements are structured: `accolade` (bracket connectors) or `native` (stacked bar rows).
+- **Themes** determine the visual shape of bars within the chosen layout.
+   - **Accolade:** `classic` (default)
+   - **Native:** `default` (pill-shaped), `split-pill`, `minimal`, `contained`
+- **Toggles** are independent switches that combine with any layout and theme:
+   - `gradient` — gradient shading on bars
+   - `hatched` — diagonal stripe pattern on remainder bars (shortfall/surplus)
+   - `animated` — animates background patterns (e.g. scrolling hatched stripes)
 
 Below is an overview of the available themes (screenshots taken using the default HA theme in dark-mode)
 
