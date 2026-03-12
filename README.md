@@ -79,6 +79,10 @@ As long as the entities you use have a numeric (int/float/decimal) value, you ca
 
 <img width="468" height="60" alt="image" src="https://github.com/user-attachments/assets/3ee0b6f3-1653-4ce5-9732-84b6a36aa39c" />
 
+You can add as many sources and destinations as you like, but keep in mind that it can become unreadable. The card is designed for 1-3 sources and 1-3 destinations. Any more and legibility will suffer.
+
+<img width="514" height="128" alt="image" src="https://github.com/user-attachments/assets/e252ba3b-bd7f-4217-a801-83478e803079" />
+
 ## Don't we already have the Distribution Card for this?
 
 We do, but that card only shows composition, not the flow from production to consumption (and its limited to energy entities only). See the difference for yourself:
