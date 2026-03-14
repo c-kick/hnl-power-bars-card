@@ -43,6 +43,7 @@ class HnlFlowBarsCardEditor extends LitElement {
     const config = { ...this._config };
 
     if (!config.unit_of_measurement) delete config.unit_of_measurement;
+    if (!config.energy_date_selection) delete config.energy_date_selection;
     // Remove legacy key
     delete config.accolade_style;
     // Omit defaults to keep YAML clean
@@ -199,6 +200,17 @@ class HnlFlowBarsCardEditor extends LitElement {
             max="6"
             @input=${(ev) => this._numberChanged('rounding', ev)}
           ></ha-textfield>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <span>Energy date selection</span>
+              <span class="toggle-description">Sync with the Energy Dashboard date picker to show statistics for the selected period</span>
+            </div>
+            <ha-switch
+              .checked=${this._config.energy_date_selection ?? false}
+              @change=${(ev) => this._toggleChanged('energy_date_selection', ev)}
+            ></ha-switch>
+          </div>
 
           <div class="toggle-row">
             <div class="toggle-label">

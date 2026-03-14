@@ -3,6 +3,7 @@ import { computeEntityIcon, resolveLayoutAndTheme } from './utils.js';
 import {
     CARD_VERSION, CARD_NAME, CARD_DESCRIPTION,
 } from './const.js';
+import { subscribeEnergyDateSelection, fetchStatistics } from './energy.js';
 import './editor/hnl-flow-bars-card-editor.js';
 
 console.info(
@@ -23,12 +24,79 @@ window.customCards.push({
 class HnlFlowBarsCard extends LitElement {
 
     _updatedParsedConfig = null;
+    _energyStats = null;
+    _energyError = null;
+    _energyLoading = false;
+    _energyUnsub = null;
+
     //part of LitElement interface
     static get properties() {
         return {
             hass: {},
             layout: { type: String },
+            _energyStats: { state: true },
+            _energyError: { state: true },
+            _energyLoading: { state: true },
         };
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._subscribeEnergy();
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this._unsubscribeEnergy();
+    }
+
+    _subscribeEnergy() {
+        if (!this._rawConfig?.energy_date_selection) return;
+
+        this._energyLoading = true;
+        this._energyError = null;
+
+        subscribeEnergyDateSelection(this.hass, async (data) => {
+            if (!this.hass) return;
+
+            const entityIds = [
+                ...this._rawConfig.production.map(p => p.entity),
+                ...this._rawConfig.consumption.map(c => c.entity),
+            ];
+
+            try {
+                const stats = await fetchStatistics(
+                    this.hass,
+                    data.start,
+                    data.end || new Date(),
+                    entityIds,
+                );
+                this._energyStats = stats;
+                this._energyLoading = false;
+                this._energyError = null;
+                // Invalidate parsed config so it re-renders with new stats
+                this._updatedParsedConfig = this._hydrateParsedConfig();
+                this.requestUpdate();
+            } catch (err) {
+                this._energyError = err.message || 'Failed to fetch statistics';
+                this._energyLoading = false;
+            }
+        }).then(unsub => {
+            this._energyUnsub = unsub;
+        }).catch(err => {
+            this._energyError = err.message;
+            this._energyLoading = false;
+        });
+    }
+
+    _unsubscribeEnergy() {
+        if (this._energyUnsub) {
+            this._energyUnsub();
+            this._energyUnsub = null;
+        }
+        this._energyStats = null;
+        this._energyError = null;
+        this._energyLoading = false;
     }
 
     _roundOff(x, digits = this._parsedConfig.rounding) {
@@ -92,14 +160,20 @@ class HnlFlowBarsCard extends LitElement {
               };
             }
 
-            const raw = stateObj.state;
+            // Use energy statistics when available, otherwise use live state
+            const useEnergy = this._rawConfig.energy_date_selection && this._energyStats;
+            const raw = useEnergy && this._energyStats[entityId] != null
+                ? String(this._energyStats[entityId])
+                : stateObj.state;
             const isUnavailable = raw === 'unavailable' || raw === 'unknown';
             const parsed = parseFloat(raw);
             const isNonNumeric = !isUnavailable && isNaN(parsed);
             let value = Math.max(0, parsed || 0);
             const displayName = item.name || stateObj.attributes.friendly_name || entityId;
             let warning = null;
-            if (isUnavailable) {
+            if (useEnergy && this._energyStats[entityId] == null) {
+              warning = `${displayName}: no statistics available for this period`;
+            } else if (isUnavailable) {
               warning = `${displayName}: ${raw}`;
             } else if (isNonNumeric) {
               warning = `${displayName}: non-numeric state "${raw}"`;
@@ -275,6 +349,26 @@ class HnlFlowBarsCard extends LitElement {
             return html``;
         }
 
+        if (this._rawConfig.energy_date_selection && this._energyError) {
+            return html`
+                <ha-card class="${this._parsedConfig.card_class}">
+                    <div class="card-content">
+                        <ha-alert alert-type="error">${this._energyError}</ha-alert>
+                    </div>
+                </ha-card>
+            `;
+        }
+
+        if (this._rawConfig.energy_date_selection && this._energyLoading && !this._energyStats) {
+            return html`
+                <ha-card class="${this._parsedConfig.card_class}">
+                    <div class="card-content">
+                        <ha-alert alert-type="info">Loading energy data…</ha-alert>
+                    </div>
+                </ha-card>
+            `;
+        }
+
         const productionTotal = this._parsedConfig.production.reduce((sum, ent) => sum + ent.value, 0);
         const consumptionTotal = this._parsedConfig.consumption.reduce((sum, ent) => sum + ent.value, 0);
 
@@ -408,8 +502,15 @@ class HnlFlowBarsCard extends LitElement {
             rounding: config.rounding ?? 0,
             transparent: config.transparent ?? true,
             unit_of_measurement: config.unit_of_measurement,
+            energy_date_selection: config.energy_date_selection ?? false,
             grid_options: config.grid_options || {},
         };
+
+        // Re-subscribe if energy mode changed while connected
+        if (this.isConnected) {
+            this._unsubscribeEnergy();
+            this._subscribeEnergy();
+        }
     }
 
 
